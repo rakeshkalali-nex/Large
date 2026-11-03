@@ -1,0 +1,69 @@
+<main class="account-shell">
+  <aside class="brand-panel" aria-label="BuildEstate">
+    <div class="wordmark"><img src="/branding/buildestate-mark.svg" alt="" width="40" height="40"><span>BuildEstate</span></div>
+    <div class="brand-copy"><p class="eyebrow">CONSTRUCTION &amp; PROPERTY MANAGEMENT</p><h2>Every detail.<br>One clear view.</h2><p>Bring your projects, people and properties together.</p></div>
+    <p class="brand-footer">Built for the work ahead.</p>
+  </aside>
+  <section class="account-panel" aria-labelledby="account-title">
+    <div class="account-content">
+      <div class="mobile-brand wordmark"><img src="/branding/buildestate-mark.svg" alt="" width="36" height="36"><span>BuildEstate</span></div>
+      <p class="eyebrow">YOUR BUILDESTATE WORKSPACE</p>
+      <h1 id="account-title" #heading tabindex="-1">{{ title() }}</h1>
+      @switch (state()) {
+        @case ('login') { <p class="intro">Sign in to continue to your workspace.</p> }
+        @case ('expired') { <p class="intro">Sign in again to continue securely. Your previous actions will not be replayed.</p> }
+        @case ('recovery') {
+          <p class="intro">Contact an Administrator for identity verification and a private, single-use reset link. Recovery links expire after 30 minutes.</p>
+          @if (instructions()) { <section class="guidance" aria-label="Company recovery instructions"><h2>{{ contactLabel() }}</h2><p>{{ instructions() }}</p></section> }
+        }
+        @case ('setup') { <p class="intro">Use the private setup link provided by your Administrator. Setup links expire after 24 hours. Complete setup before entering your workspace.</p> }
+        @case ('reset') { <p class="intro">Choose a new password for your account. You will sign in again after saving.</p> }
+        @case ('change') { <p class="intro">Confirm your current password and choose a new one. All existing sessions will be signed out.</p> }
+        @case ('invalid-link') { <p class="intro">This setup or reset link is invalid, expired, already used or replaced. Contact an Administrator to verify your identity and receive a replacement privately.</p> }
+        @case ('success') { <p class="intro">Your password has been saved and previous sessions have been signed out. Sign in with your new password to continue.</p> }
+        @case ('unavailable') { <p class="intro">We could not restore your session. Check your connection and try again. No protected information has been displayed.</p> }
+        @case ('denied') { <p class="intro">You do not have permission to open this page. Return to your authorized workspace or contact an Administrator.</p> }
+      }
+      <div class="announcement" role="status" aria-live="polite" aria-atomic="true">{{ status() }}</div>
+      <div #feedback class="feedback" [class.has-error]="!!error()" tabindex="-1" role="alert" aria-atomic="true">{{ error() }}</div>
+      @if (isSignIn() || isPasswordForm()) {
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate [attr.aria-busy]="pending()">
+          <fieldset [disabled]="pending()">
+            <legend class="sr-only">{{ title() }}</legend>
+            @if (isSignIn()) {
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" formControlName="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" required>
+            }
+            @if (state() === 'change') {
+              <label for="current-password">Current password</label>
+              <input id="current-password" name="currentPassword" [type]="visible() ? 'text' : 'password'" formControlName="currentPassword" autocomplete="current-password" required>
+            }
+            <label for="password">{{ isSignIn() ? 'Password' : 'New password' }}</label>
+            <div class="password-field">
+              <input id="password" name="password" [type]="visible() ? 'text' : 'password'" formControlName="password" [attr.autocomplete]="isSignIn() ? 'current-password' : 'new-password'" [attr.aria-describedby]="isSignIn() ? null : 'password-hint'" required>
+              <button class="visibility" type="button" (click)="togglePassword()" [attr.aria-label]="visible() ? 'Hide password' : 'Show password'" [attr.aria-pressed]="visible()" aria-controls="password">{{ visible() ? 'Hide' : 'Show' }}</button>
+            </div>
+            @if (!isSignIn()) {
+              <p id="password-hint" class="hint">Use 12 to 128 characters. Spaces, paste and password managers are supported.</p>
+              <label for="confirm-password">Confirm new password</label>
+              <input id="confirm-password" name="confirmPassword" [type]="visible() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" required>
+            }
+            <button class="primary" type="submit" [disabled]="pending()">{{ submitLabel() }}</button>
+          </fieldset>
+        </form>
+      }
+      <div class="account-actions">
+        @if (isSignIn()) { <button type="button" class="text-action" (click)="recover()" [disabled]="pending()">Forgot password?</button> }
+        @if (state() === 'setup' || state() === 'invalid-link') { <button type="button" class="primary" (click)="recover()" [disabled]="pending()">Contact an Administrator</button> }
+        @if (state() === 'recovery' && error()) { <button type="button" class="primary" (click)="loadGuidance()" [disabled]="pending()">Retry recovery instructions</button> }
+        @if (state() === 'unavailable') { <button type="button" class="primary" (click)="retryConnection()" [disabled]="pending()">Try again</button> }
+        @if (state() === 'denied') { <button type="button" class="primary" (click)="safeDestination()" [disabled]="pending()">Return to your workspace</button> }
+        @if (!isSignIn() && state() !== 'denied' && state() !== 'unavailable' && session.store.status() !== 'setupRequired') {
+          <button type="button" [class]="state() === 'success' ? 'primary' : 'text-action'" (click)="signIn()" [disabled]="pending()">Back to sign in</button>
+        }
+        @if (session.store.status() === 'setupRequired' || state() === 'change') { <button type="button" class="text-action" (click)="logout()" [disabled]="pending()">Sign out</button> }
+      </div>
+      <p class="security-note">Private access for authorized staff.<br>Never share your password or account links.</p>
+    </div>
+  </section>
+</main>
