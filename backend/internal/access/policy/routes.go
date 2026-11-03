@@ -51,6 +51,9 @@ func RouteCapability(method, path string) (capability string, individual bool, k
 		}
 	}
 	if len(parts) == 2 {
+		if parts[0] == "users" && parts[1] == "projects" && method == "GET" {
+			return "users.manage", false, true
+		}
 		if parts[0] == "auth" && parts[1] == "change-password" && method == "POST" {
 			return "auth.password.change", false, true
 		}
@@ -105,7 +108,7 @@ func RouteCapability(method, path string) (capability string, individual bool, k
 			return "handover.record", true, true
 		}
 	}
-	if len(parts) == 3 && parts[0] == "users" && parts[2] == "password-reset" && method == "POST" {
+	if len(parts) == 3 && parts[0] == "users" && (parts[2] == "password-reset" || parts[2] == "deactivate" || parts[2] == "reactivate") && method == "POST" {
 		return "users.manage", false, true
 	}
 	if len(parts) > 2 {

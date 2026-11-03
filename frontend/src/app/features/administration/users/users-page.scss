@@ -1,0 +1,26 @@
+:host { display: block; min-width: 0; }
+.users-page { max-width: 1200px; margin: auto; padding: clamp(16px, 3vw, 32px); color: var(--color-text, #243447); }
+h1 { margin: 0; font-size: 2rem; } h2 { margin: 0 0 8px; font-size: 1.15rem; }
+p { overflow-wrap: anywhere; } .eyebrow, .label { font-weight: 600; }
+.eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; }
+.toolbar, .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+.toolbar > div { flex: 1; min-width: 160px; } .toolbar { margin: 24px 0; }
+label { display: block; font-weight: 500; margin: 12px 0 6px; }
+input:not([type=checkbox]), select, textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #68788a; border-radius: 6px; font: inherit; background: white; color: #243447; }
+textarea { min-height: 100px; overflow-wrap: anywhere; }
+button { min-height: 44px; padding: 9px 14px; font: inherit; cursor: pointer; }
+button:disabled { cursor: wait; } [role=alert] { color: #a61919; }
+.danger:not(:disabled) { color: #fff; background: #b91c1c; border-color: #b91c1c; }
+.danger:not(:disabled):hover { background: #991b1b; border-color: #991b1b; }
+.danger:not(:disabled):active { background: #7f1d1d; border-color: #7f1d1d; }
+.staff-list { list-style: none; padding: 0; display: grid; gap: 16px; }
+.staff-card { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; padding: 20px; border: 1px solid #c5cdd6; border-radius: 12px; background: white; }
+.staff-card > * { min-width: 0; } .staff-card p { margin: 4px 0 12px; } .staff-card .actions { grid-column: 1 / -1; }
+dialog { width: min(640px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); box-sizing: border-box; overflow: auto; padding: 24px; border: 1px solid #68788a; border-radius: 12px; color: #243447; background: #fff; }
+dialog::backdrop { background: #14283f99; } dialog .actions { justify-content: flex-end; margin-top: 20px; }
+fieldset { min-width: 0; border: 0; padding: 0; margin: 0; } legend { font-weight: 600; }
+.projects { margin-top: 20px; border-top: 1px solid #c5cdd6; padding-top: 12px; }
+.check { display: flex; gap: 10px; align-items: start; min-height: 44px; overflow-wrap: anywhere; }
+.check input { width: 20px; height: 20px; flex: 0 0 20px; }
+:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 3px; }
+@media (max-width: 640px) { .staff-card { grid-template-columns: 1fr; } .toolbar button, .actions button { width: 100%; } dialog { width: 100%; max-width: 100%; max-height: 100dvh; height: 100dvh; margin: 0; border-radius: 0; padding: 20px; } }

@@ -1,0 +1,150 @@
+openapi: 3.1.0
+info:
+  title: BuildEstate Users and access
+  version: 1.0.0
+  description: |
+    Administrator-only persisted staff management. All responses are no-store.
+    Mutations require same-origin Origin, X-CSRF-Token and UUID Idempotency-Key.
+    Unknown request fields are rejected. Replays reauthorize and return the current
+    retained resource without repeating writes; changed payloads conflict.
+    Account changes revoke only the affected user's sessions. Deactivation also
+    revokes outstanding password tokens and removes the usable password hash.
+    Reactivation requires fresh setup; it never restores the old password.
+    Setup/recovery issuance uses the password-reset operation in passwords.yaml,
+    after explicit trusted-channel identity verification. Links are shown once.
+servers: [{url: /api/v1}]
+security: [{session: []}]
+paths:
+  /users:
+    get:
+      operationId: listStaff
+      parameters:
+        - in: query
+          name: search
+          schema: {type: string, maxLength: 320}
+      responses:
+        '200':
+          description: Staff matching name or normalized email; includes deactivated identities.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId: {type: string}
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/User'}
+        default: {$ref: '#/components/responses/Error'}
+    post:
+      operationId: createStaff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Edit'}
+      responses:
+        '200': {$ref: '#/components/responses/Saved'}
+        default: {$ref: '#/components/responses/Error'}
+  /users/{id}:
+    parameters: [{$ref: '#/components/parameters/ID'}]
+    put:
+      operationId: replaceStaffAccess
+      description: Full editable field replacement; positive current version required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Edit'}
+      responses:
+        '200': {$ref: '#/components/responses/Saved'}
+        default: {$ref: '#/components/responses/Error'}
+  /users/{id}/deactivate:
+    parameters: [{$ref: '#/components/parameters/ID'}]
+    post:
+      operationId: deactivateStaff
+      description: Rejects removal of the final active Administrator inside the serialized transaction.
+      requestBody: {$ref: '#/components/requestBodies/Transition'}
+      responses:
+        '200': {$ref: '#/components/responses/Saved'}
+        default: {$ref: '#/components/responses/Error'}
+  /users/{id}/reactivate:
+    parameters: [{$ref: '#/components/parameters/ID'}]
+    post:
+      operationId: reactivateStaff
+      description: Moves a deactivated account to setup-required; issue a replacement setup link separately.
+      requestBody: {$ref: '#/components/requestBodies/Transition'}
+      responses:
+        '200': {$ref: '#/components/responses/Saved'}
+        default: {$ref: '#/components/responses/Error'}
+  /roles:
+    get:
+      operationId: staffRoleOptions
+      responses:
+        '200':
+          description: Envelope data.items of code/name pairs for the seven fixed roles.
+        default: {$ref: '#/components/responses/Error'}
+  /users/projects:
+    get:
+      operationId: staffProjectOptions
+      responses:
+        '200':
+          description: Administrator-only envelope data.items of retained project id/name pairs.
+        default: {$ref: '#/components/responses/Error'}
+components:
+  securitySchemes:
+    session: {type: apiKey, in: cookie, name: buildestate_session}
+  parameters:
+    ID: {in: path, name: id, required: true, schema: {type: string}}
+  schemas:
+    Edit:
+      type: object
+      additionalProperties: false
+      required: [displayName, email, role, projectIds]
+      properties:
+        displayName: {type: string, minLength: 1, maxLength: 120}
+        email: {type: string, format: email, maxLength: 254}
+        role: {type: string, enum: [administrator, project-manager, site-engineer, procurement-officer, finance-officer, sales-executive, management-viewer]}
+        projectIds: {type: array, uniqueItems: true, maxItems: 1000, items: {type: string}}
+        version: {type: integer, minimum: 1}
+    User:
+      type: object
+      required: [id, displayName, email, role, status, version, projectIds]
+      properties:
+        id: {type: string}
+        displayName: {type: string}
+        email: {type: string}
+        role: {type: string}
+        status: {type: string, enum: [setup-required, active, deactivated]}
+        version: {type: integer, minimum: 1}
+        projectIds: {type: array, items: {type: string}}
+  requestBodies:
+    Transition:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [version, reason]
+            properties:
+              version: {type: integer, minimum: 1}
+              reason: {type: string, minLength: 1, maxLength: 1000}
+  responses:
+    Saved:
+      description: Committed staff resource; no password or token material.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              requestId: {type: string}
+              data: {$ref: '#/components/schemas/User'}
+    Error:
+      description: |
+        Safe error envelope. 401 invalid session; 403 forbidden/CSRF; 404 absent
+        account; 409 STALE_VERSION, EMAIL_IN_USE, FINAL_ACTIVE_ADMINISTRATOR,
+        INVALID_TRANSITION or IDEMPOTENCY_MISMATCH; 422 invalid identity,
+        role/project references or required fields; 503 unavailable storage.

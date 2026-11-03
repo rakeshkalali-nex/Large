@@ -1,0 +1,80 @@
+<section class="users-page" aria-labelledby="users-heading">
+  <header><div><p class="eyebrow">Administration</p><h1 id="users-heading">Users and access</h1></div></header>
+  @if (!authorized()) {
+    <p role="alert">Only an authenticated Administrator can manage users and access.</p>
+  } @else {
+    <p>Manage staff identities, roles and project access. Deactivation retains business history.</p>
+    <form class="toolbar" (ngSubmit)="load()">
+      <div><label for="staff-search">Search staff</label><input id="staff-search" name="search" type="search" [(ngModel)]="search" placeholder="Name or email"></div>
+      <button type="submit" [disabled]="loading() || pending()">Search / refresh</button>
+      <button type="button" (click)="edit(null)" [disabled]="loading() || pending() || !roles().length">Create account</button>
+    </form>
+    @if (notice()) { <p role="status">{{ notice() }}</p> }
+    @if (error()) { <p role="alert">{{ error() }}</p> }
+    @if (loading()) { <p role="status">Loading staff and access options…</p> }
+    @else if (!users().length && !error()) { <p role="status">No staff match this search.</p> }
+    @else {
+      <ul class="staff-list" aria-label="Staff accounts">
+        @for (user of users(); track user.id) {
+          <li class="staff-card">
+            <div><h2>{{ user.displayName }}</h2><p>{{ user.email }}</p></div>
+            <div><span class="label">Status</span><p>{{ user.status }}</p><span class="label">Role</span><p>{{ roleName(user.role) }}</p></div>
+            <div><span class="label">Projects</span><p>{{ projectNames(user) }}</p></div>
+            <div class="actions" [attr.aria-label]="'Actions for ' + user.displayName">
+              <button type="button" (click)="edit(user)" [disabled]="pending()">Edit {{ user.displayName }}</button>
+              @if (user.status === 'deactivated') {
+                <button type="button" (click)="confirmAction(user, 'reactivate')" [disabled]="pending()">Reactivate</button>
+              } @else {
+                <button type="button" (click)="confirmAction(user, user.status === 'setup-required' ? 'setup' : 'recovery')" [disabled]="pending()">{{ user.status === 'setup-required' ? 'Issue setup link' : 'Issue recovery link' }}</button>
+                <button type="button" class="danger" (click)="confirmAction(user, 'deactivate')" [disabled]="pending()">Deactivate</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+    <dialog #modal aria-labelledby="account-dialog-title" (cancel)="cancel($event)">
+      @if (mode() === 'editor') {
+        <h2 id="account-dialog-title">{{ selected ? 'Edit account' : 'Create account' }}</h2>
+        <form (ngSubmit)="save()">
+          <fieldset [disabled]="pending()">
+            <legend>Staff identity and access</legend>
+            <label for="display-name">Display name</label><input id="display-name" name="displayName" [(ngModel)]="draft.displayName" required maxlength="200" autofocus>
+            <label for="staff-email">Email</label><input id="staff-email" name="email" type="email" [(ngModel)]="draft.email" required maxlength="254">
+            <label for="staff-role">Role</label><select id="staff-role" name="role" [(ngModel)]="draft.role" required><option value="" disabled>Select one role</option>@for (role of roles(); track role.code) { <option [value]="role.code">{{ role.name }}</option> }</select>
+            <fieldset class="projects"><legend>Explicit project assignments</legend>
+              @for (project of projects(); track project.id) {
+                <label class="check"><input type="checkbox" [checked]="draft.projectIds.includes(project.id)" (change)="toggleProject(project.id, $any($event.target).checked)">{{ project.name }}</label>
+              } @empty { <p>No projects are available to assign.</p> }
+            </fieldset>
+            @if (draft.role === 'administrator') { <p>Administrators have company-wide project access.</p> }
+            @else if (!draft.projectIds.length) { <p role="status">No projects assigned. This account will not gain access to another project's records.</p> }
+            <p>Role and assignment changes invalidate this user's existing sessions.</p>
+          </fieldset>
+          @if (dialogError()) { <p role="alert">{{ dialogError() }}</p> }
+          <div class="actions"><button type="button" (click)="dismiss()" [disabled]="pending()">Cancel</button><button type="submit" [disabled]="pending()">{{ pending() ? 'Saving…' : 'Save account' }}</button></div>
+        </form>
+      } @else if (mode() === 'action') {
+        <h2 id="account-dialog-title">Confirm {{ action }}</h2>
+        <p>Account: <strong>{{ selected?.displayName }}</strong> ({{ selected?.email }})</p>
+        @if (action === 'deactivate') { <p>Access will stop on the next protected operation. Business records and audit identity remain. The final active Administrator cannot be deactivated.</p> }
+        @else if (action === 'reactivate') { <p>This restores setup-required status, not active access. A fresh setup link must be issued after verifying identity.</p> }
+        @else { <p>Verify identity in person or by a known-number conversation. Deliver the link privately through your established trusted channel. Issuing a replacement revokes earlier unused links of the same purpose.</p> }
+        <form (ngSubmit)="performAction()">
+          <label for="action-reason">Reason (required; do not include passwords or tokens)</label><textarea id="action-reason" name="reason" [(ngModel)]="reason" required maxlength="1000" [disabled]="pending()"></textarea>
+          @if (action === 'setup' || action === 'recovery') {
+            <label class="check"><input type="checkbox" name="identityVerified" [(ngModel)]="identityVerified" required [disabled]="pending()">I verified this person's identity through an established trusted channel.</label>
+          }
+          @if (dialogError()) { <p role="alert">{{ dialogError() }}</p> }
+          <div class="actions"><button type="button" (click)="dismiss()" [disabled]="pending()" autofocus>Cancel</button><button type="submit" [disabled]="pending()">{{ pending() ? 'Submitting…' : 'Confirm ' + action }}</button></div>
+        </form>
+      } @else if (mode() === 'link') {
+        <h2 id="account-dialog-title">One-time {{ action }} link</h2>
+        <p role="status">Shown only here. Deliver privately to {{ selected?.displayName }}. Closing this dialog clears the link; it cannot be retrieved later.</p>
+        <label for="issued-link">Private setup / recovery link</label><textarea id="issued-link" readonly [value]="deliveryLink()" spellcheck="false"></textarea>
+        <p>Expires at {{ link()?.expiresAt }}. After use or expiry, verify identity before issuing a replacement.</p>
+        <button type="button" (click)="dismiss()">Done — clear link</button>
+      }
+    </dialog>
+  }
+</section>
