@@ -1,0 +1,154 @@
+openapi: 3.1.0
+info:
+  title: Read-only audit history
+  version: 1.0.0
+servers: [{url: /api/v1}]
+security: [{session: []}]
+x-permissions: Administrator search; Finance relevant financial trails; Project Manager assigned-project approval trails. Server authorization applies to lists, details and record links.
+x-lifecycle: Immutable evidence; no create, update, delete or export operation is exposed here. Important mutation/approval evidence is retained seven years after parent closure; routine authentication one year. Source-record holds override eligibility.
+paths:
+  /audit-events:
+    get:
+      operationId: listAuditEvents
+      description: Search safe authorized projections. All dates are UTC RFC3339. Cursor is opaque and must be reused only with identical filters and ordering. No credentials or sensitive internal errors are returned. Monetary changes remain exact server-formatted strings, never floating-point numbers.
+      parameters:
+        - {name: q, in: query, description: 'Literal case-insensitive search of actor display name, action, record ID and request ID; not reason or change values', schema: {type: string, maxLength: 200}}
+        - {name: actorId, in: query, schema: {type: string}}
+        - {name: action, in: query, schema: {type: string}}
+        - {name: projectId, in: query, schema: {type: string}}
+        - {name: recordType, in: query, schema: {type: string}}
+        - {name: recordId, in: query, schema: {type: string}}
+        - {name: from, in: query, schema: {$ref: '#/components/schemas/UtcTimestamp'}}
+        - {name: to, in: query, schema: {$ref: '#/components/schemas/UtcTimestamp'}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}
+        - {name: cursor, in: query, schema: {type: string}}
+        - {name: sort, in: query, schema: {type: string, enum: [occurredAt], default: occurredAt}}
+        - {name: direction, in: query, schema: {type: string, enum: [desc, asc], default: desc}}
+      responses:
+        '200':
+          description: Authorized event page (empty data is a successful search)
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditPageEnvelope'}
+              example: {data: [], page: {nextCursor: null, limit: 25}, requestId: request-1}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '422': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+  /audit-events/{id}:
+    get:
+      operationId: getAuditEvent
+      parameters:
+        - {name: id, in: path, required: true, description: Opaque audit event identifier, schema: {type: string, minLength: 1}}
+      responses:
+        '200':
+          description: Authorized safe event details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditEnvelope'}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+components:
+  securitySchemes:
+    session: {type: apiKey, in: cookie, name: buildestate_session}
+  responses:
+    Error:
+      description: Safe error. 400 malformed query/identifier; 401 authentication required; 403 forbidden; 404 not found or inaccessible; 422 invalid filters; 503 service unavailable.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+  schemas:
+    UtcTimestamp:
+      type: string
+      format: date-time
+      pattern: 'Z$'
+      example: '2026-11-03T22:00:00Z'
+    AuditEvent:
+      type: object
+      additionalProperties: false
+      required: [id, actorId, actorName, occurredAt, action, projectId, projectName, recordType, recordId, recordLink, requestId, reason, changes, retention]
+      properties:
+        id: {type: string, description: Opaque event identifier}
+        actorId: {type: [string, 'null']}
+        actorName: {type: [string, 'null']}
+        occurredAt: {$ref: '#/components/schemas/UtcTimestamp'}
+        action: {type: string}
+        projectId: {type: [string, 'null']}
+        projectName: {type: [string, 'null']}
+        recordType: {type: string}
+        recordId: {type: string}
+        recordLink: {type: [string, 'null'], description: Authorized application-relative path; null when no authorized destination is available}
+        requestId: {type: string}
+        reason: {type: [string, 'null']}
+        changes:
+          type: array
+          items: {$ref: '#/components/schemas/AuditChange'}
+        retention: {$ref: '#/components/schemas/AuditRetention'}
+      example:
+        id: event-1
+        actorId: staff-1
+        actorName: Administrator
+        occurredAt: '2026-11-03T22:00:00Z'
+        action: settings.update
+        projectId: null
+        projectName: null
+        recordType: settings
+        recordId: company
+        recordLink: null
+        requestId: request-1
+        reason: Company name corrected
+        changes: [{field: version, before: '1', after: '2'}]
+        retention: {class: business, eligibleAt: null, holdIds: []}
+    AuditChange:
+      type: object
+      additionalProperties: false
+      required: [field, before, after]
+      properties:
+        field: {type: string}
+        before: {type: [string, 'null']}
+        after: {type: [string, 'null']}
+    AuditRetention:
+      type: object
+      additionalProperties: false
+      required: [class, eligibleAt, holdIds]
+      properties:
+        class: {type: string}
+        eligibleAt: {type: [string, 'null'], format: date-time, pattern: 'Z$'}
+        holdIds: {type: array, items: {type: string}}
+    AuditEnvelope:
+      type: object
+      additionalProperties: false
+      required: [data, requestId]
+      properties:
+        data: {$ref: '#/components/schemas/AuditEvent'}
+        requestId: {type: string}
+    AuditPageEnvelope:
+      type: object
+      additionalProperties: false
+      required: [data, page, requestId]
+      properties:
+        data: {type: array, items: {$ref: '#/components/schemas/AuditEvent'}}
+        requestId: {type: string}
+        page:
+          type: object
+          additionalProperties: false
+          required: [nextCursor, limit]
+          properties:
+            nextCursor: {type: [string, 'null']}
+            limit: {type: integer, minimum: 1, maximum: 100}
+    ErrorEnvelope:
+      type: object
+      additionalProperties: false
+      required: [error, requestId]
+      properties:
+        requestId: {type: string}
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: {type: string}
+            message: {type: string}

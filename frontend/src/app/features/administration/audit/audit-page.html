@@ -1,0 +1,60 @@
+<section class="audit-page" aria-labelledby="audit-title">
+  <header><p class="eyebrow">Administration / Evidence</p><h1 id="audit-title">Audit history</h1>
+    <p>Read-only evidence of important actions. Results are limited to your authorized trails. All times are UTC.</p></header>
+  <form [formGroup]="form" (ngSubmit)="apply()" aria-label="Audit filters">
+    <div class="filters">
+      <label>Search<input type="search" formControlName="q" placeholder="Search audit evidence"></label>
+      <label>Actor ID<input formControlName="actorId"></label>
+      <label>Action<input formControlName="action" placeholder="e.g. settings.updated"></label>
+      <label>Project ID<input formControlName="projectId"></label>
+      <label>Record type<input formControlName="recordType"></label>
+      <label>Record ID<input formControlName="recordId"></label>
+      <label>From (UTC)<input type="datetime-local" step="1" formControlName="from"></label>
+      <label>To (UTC)<input type="datetime-local" step="1" formControlName="to"></label>
+      <label>Timestamp order<select formControlName="direction"><option value="desc">Newest first</option><option value="asc">Oldest first</option></select></label>
+      <label>Events per page<select formControlName="limit"><option [ngValue]="25">25</option><option [ngValue]="50">50</option><option [ngValue]="100">100</option></select></label>
+    </div>
+    @if (validation()) { <p role="alert">{{ validation() }}</p> }
+    <div class="actions"><button type="submit" [disabled]="loading() || session.status() !== 'authenticated'">Search events</button><button type="button" (click)="reset()" [disabled]="session.status() !== 'authenticated'">Reset filters</button></div>
+  </form>
+  <div aria-live="polite" role="status">@if (loading()) { Loading audit events… } @else if (!error()) { {{ events().length }} events on this page. }</div>
+  @if (error()) { <section class="feedback" role="alert"><h2>{{ denied() ? 'Access denied' : 'Audit history unavailable' }}</h2><p>{{ error() }}</p>
+    @if (!denied() && session.status() === 'authenticated') { <button type="button" (click)="load()">Retry audit history</button> }
+  </section> }
+  @if (!loading() && !error() && events().length === 0) { <section class="feedback"><h2>No audit events found</h2><p>Try a different date range or clear the filters. Only authorized events are shown.</p></section> }
+  <ol class="event-list" aria-label="Audit events" [attr.aria-busy]="loading()">
+    @for (event of events(); track event.id) {
+      <li class="event-row">
+        <div><span class="label">Action</span><strong>{{ event.action }}</strong><time [attr.datetime]="event.occurredAt">{{ event.occurredAt | date:'yyyy-MM-dd HH:mm:ss':'+0000' }} UTC</time></div>
+        <div><span class="label">Actor</span>{{ event.actorName ?? 'System / unavailable' }}<small>{{ event.actorId ?? 'No staff ID' }}</small></div>
+        <div><span class="label">Project</span>{{ event.projectName ?? event.projectId ?? 'Company-wide' }}</div>
+        <div><span class="label">Record</span>{{ event.recordType }}<small>{{ event.recordId }}</small></div>
+        <button #details type="button" (click)="openDetails(event, details)" [attr.aria-label]="'View details for ' + event.action + ' ' + event.id">View details</button>
+      </li>
+    }
+  </ol>
+  <nav class="actions" aria-label="Audit pagination"><button type="button" (click)="next()" [disabled]="loading() || !nextCursor()">Next page</button><span>Search again to return to the first page.</span></nav>
+</section>
+<dialog #drawer class="audit-drawer" aria-labelledby="detail-title" (cancel)="closeDetails()">
+  <header class="drawer-header"><h2 id="detail-title">Audit event details</h2><button type="button" autofocus (click)="closeDetails()" aria-label="Close audit event details">Close</button></header>
+  @if (detailLoading()) { <p role="status">Loading event details…</p> }
+  @if (detailError()) { <div role="alert"><p>{{ detailError() }}</p>@if (detailRetry()) { <button type="button" (click)="loadDetail()">Retry event details</button> }</div> }
+  @if (selected(); as event) {
+    <p class="eyebrow">Immutable audit evidence</p>
+    <dl class="metadata">
+      <dt>Event ID</dt><dd>{{ event.id }}</dd><dt>Action</dt><dd>{{ event.action }}</dd>
+      <dt>Occurred at (UTC)</dt><dd>{{ event.occurredAt | date:'yyyy-MM-dd HH:mm:ss.SSS':'+0000' }} UTC</dd>
+      <dt>Actor</dt><dd>{{ event.actorName ?? 'System / unavailable' }} · {{ event.actorId ?? 'No staff ID' }}</dd>
+      <dt>Project</dt><dd>{{ event.projectName ?? 'Company-wide / unavailable' }} · {{ event.projectId ?? 'No project ID' }}</dd>
+      <dt>Record</dt><dd>{{ event.recordType }} · {{ event.recordId }} @if (safeLink(event.recordLink); as link) { <a [routerLink]="link" (click)="closeDetails()">Open record</a> }</dd>
+      <dt>Request ID</dt><dd>{{ event.requestId }}</dd><dt>Reason</dt><dd>{{ event.reason ?? 'No reason recorded' }}</dd>
+    </dl>
+    <h3>Safe before / after changes</h3>
+    @for (change of event.changes; track $index) { <section class="change"><h4>{{ change.field }}</h4><dl><dt>Before</dt><dd>{{ change.before ?? 'Not set' }}</dd><dt>After</dt><dd>{{ change.after ?? 'Not set' }}</dd></dl></section> }
+    @empty { <p>No field changes recorded for this event.</p> }
+    <h3>Retention and holds</h3><dl class="metadata"><dt>Retention class</dt><dd>{{ event.retention.class }}</dd>
+      <dt>Eligible at (UTC)</dt><dd>{{ event.retention.eligibleAt ? (event.retention.eligibleAt | date:'yyyy-MM-dd HH:mm:ss':'+0000') + ' UTC' : 'Not yet determined' }}</dd>
+      <dt>Source holds</dt><dd>@for (hold of event.retention.holdIds; track hold) { <div>{{ hold }}</div> } @empty { No recorded holds }</dd></dl>
+    <p>Holds override retention eligibility. Evidence cannot be edited from this screen.</p>
+  }
+</dialog>

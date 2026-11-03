@@ -1,0 +1,23 @@
+:host { display: block; min-width: 0; }
+.audit-page { display: grid; gap: var(--space-3); min-width: 0; }
+h1, h2, h3, p { margin-top: 0; }
+.eyebrow, .label { color: var(--color-muted); font-size: .85rem; }
+form, .feedback, .event-row { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-surface); padding: var(--space-2); }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: var(--space-2); margin-bottom: var(--space-2); }
+label { display: grid; gap: var(--space-tight); min-width: 0; }
+input, select { width: 100%; min-width: 0; box-sizing: border-box; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.event-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.event-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto; gap: var(--space-2); align-items: center; }
+.event-row > *, dd { min-width: 0; overflow-wrap: anywhere; }
+.label, small, time { display: block; }
+small, time { color: var(--color-muted); }
+.audit-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; box-sizing: border-box; width: min(640px, 100%); max-width: 100%; height: 100dvh; max-height: 100dvh; padding: var(--space-3); border: 0; border-left: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); overflow-y: auto; overflow-wrap: anywhere; }
+.audit-drawer::backdrop { background: #14283f99; }
+.drawer-header { display: flex; justify-content: space-between; gap: var(--space-2); align-items: start; }
+.metadata { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: var(--space-1); }
+dt { font-weight: 600; } dd { margin: 0; white-space: pre-wrap; }
+.change { border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-2); margin-bottom: var(--space-2); }
+.change h4 { margin-top: 0; } .change dl { display: grid; gap: var(--space-1); }
+@media (max-width: 1024px) { .event-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) { .event-row, .metadata { grid-template-columns: minmax(0, 1fr); } .audit-drawer { padding: var(--space-2); } .event-row button { width: 100%; } }
