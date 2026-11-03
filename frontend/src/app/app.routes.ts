@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
+import { protectedEntryGuard } from './core/guards/entry.guards';
 export const APP_ROUTES: Routes = [
- { path: '', pathMatch: 'full', redirectTo: 'login' },
  { path: '', loadChildren: () => import('./features/auth/routes').then(m => m.AUTH_ROUTES) },
+ { path: '', canActivateChild: [protectedEntryGuard], children: [
+ { path: 'access-denied', loadComponent: () => import('./core/guards/access-denied').then(m => m.AccessDeniedPage) },
  { path: '', loadChildren: () => import('./features/projects/routes').then(m => m.PROJECTS_ROUTES) },
  { path: '', loadChildren: () => import('./features/sitework/routes').then(m => m.SITEWORK_ROUTES) },
  { path: '', loadChildren: () => import('./features/procurement/routes').then(m => m.PROCUREMENT_ROUTES) },
@@ -12,4 +14,5 @@ export const APP_ROUTES: Routes = [
  { path: '', loadChildren: () => import('./features/administration/routes').then(m => m.ADMINISTRATION_ROUTES) },
  { path: '', loadChildren: () => import('./features/reporting/routes').then(m => m.REPORTING_ROUTES) },
  { path: '**', loadComponent: () => import('./setup/unavailable').then(m => m.UnavailablePage) }
+ ] }
 ];
