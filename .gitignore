@@ -1,0 +1,5 @@
+# Nexgile Greenfield: the project's local state, and your own documents
+.nexgile/greenfield/state.json
+.nexgile/greenfield/thread.jsonl
+.nexgile/greenfield/checkpoints/
+docs/input/
