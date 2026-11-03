@@ -92,7 +92,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: api_
   - _Issue: #5_
 
-- [ ] 6. Sign in and authorized entry
+- [x] 6. Sign in and authorized entry
   - Deliver screen 01 and root entry resolution: navy architectural desktop panel, warm-light 420px form, compact mobile brand header, visible labels, masked password with show/hide, Enter submission, password-manager/paste support and real Go authentication. Restore identity before routing and select only the authorized return path or exact role landing.
   - Build recovery guidance, setup/reset/change, expiry and service-failure states inside the account shell, with screen-owned styles and accessible loading/errors. Test safe email retention, cleared passwords, duplicate-submit prevention, malformed/external return paths, authenticated login visits and keyboard-open layout behavior through a self-starting browser smoke suite.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9_
@@ -308,7 +308,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: api_
   - _Issue: #6_
 
-- [ ] 25. Company settings and data stewardship
+- [x] 25. Company settings and data stewardship
   - Deliver screen 35's company/branding, currency/timezone, reference defaults, project/site overrides, operating-policy, privacy/retention and operator-status sections with validation/history; mobile uses named stacked sections and clear posting blockers. Implement settings, acknowledgments, privacy requests, holds and reviewed retention endpoints, plus the administrator-only operator-status projection.
   - Test explicit currency/timezone setup and currency lock, permitted overrides, minimal personal fields, notice/consent references, required local operating-policy record, hold-safe correction/anonymization and every approved retention period. Status reads the foundation's diagnostics and backup interface; task 28 supplies the backup implementation and failure-state tests. Document live-use prerequisites without inventing company legal values.
   - _Requirements: 24.1, 24.2, 24.3, 24.4, 24.5, 24.6, 24.7, 26.9_
