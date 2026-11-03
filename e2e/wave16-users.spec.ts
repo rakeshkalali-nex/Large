@@ -1,0 +1,117 @@
+import { test, expect, login } from './wave16-fixtures';
+import { randomUUID } from 'node:crypto';
+
+test('administrator manages identity, project access, trusted setup and staff lifecycle', async ({ page, staffServer, browser }) => {
+  test.setTimeout(90000);
+  await login(page, staffServer);
+  await expect(page.getByRole('heading', { name: 'Users and access', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Create account', exact: true }).click();
+  await page.getByLabel('Display name', { exact: true }).fill('Journey Staff');
+  await page.getByLabel('Email', { exact: true }).fill('journey-staff@example.test');
+  await page.getByLabel('Role', { exact: true }).selectOption('site-engineer');
+  await expect(page.getByRole('status').filter({ hasText: "This account will not gain access" })).toBeVisible();
+  await page.getByLabel('Acceptance North', { exact: true }).check();
+  await expect(page.getByLabel('Acceptance South', { exact: true })).not.toBeChecked();
+  await page.getByRole('button', { name: 'Save account', exact: true }).click();
+  await expect(page.getByText('Account created. Verify identity, then explicitly issue a setup link.')).toBeVisible();
+  await page.getByLabel('Search staff').fill('journey-staff@example.test');
+  await page.getByRole('button', { name: 'Search / refresh' }).click();
+  const card = page.getByRole('list', { name: 'Staff accounts' }).getByRole('listitem');
+  await expect(card).toHaveCount(1);
+  await expect(card).toContainText('setup-required');
+  await expect(card).toContainText('Acceptance North');
+  await page.getByRole('button', { name: 'Edit Journey Staff' }).click();
+  await page.getByLabel('Display name', { exact: true }).fill('Journey Staff Updated');
+  await page.getByLabel('Role', { exact: true }).selectOption('project-manager');
+  await page.getByRole('button', { name: 'Save account', exact: true }).click();
+  await expect(card).toContainText('Project Manager');
+  await page.getByRole('button', { name: 'Issue setup link', exact: true }).click();
+  await expect(page.getByText(/Deliver the link privately through your established trusted channel/)).toBeVisible();
+  await page.getByLabel('Reason (required; do not include passwords or tokens)').fill('Identity checked in person');
+  await expect(page.getByRole('checkbox', { name: /I verified this person's identity/ })).not.toBeChecked();
+  await page.getByRole('checkbox', { name: /I verified this person's identity/ }).check();
+  await page.getByRole('button', { name: 'Confirm setup', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'One-time setup link' })).toBeVisible();
+  const link = await page.getByLabel('Private setup / recovery link').inputValue();
+  expect(new URL(link).hash).toMatch(/^#token=.+/);
+  await page.getByRole('button', { name: 'Done — clear link' }).click();
+  await expect(page.getByLabel('Private setup / recovery link')).toHaveCount(0);
+  const context = await browser.newContext({ baseURL: staffServer.origin });
+  const staff = await context.newPage();
+  const password = randomUUID();
+  try {
+    await staff.goto(new URL(link).pathname + new URL(link).hash);
+    await staff.getByLabel('New password', { exact: true }).fill(password);
+    await staff.getByLabel('Confirm new password', { exact: true }).fill(password);
+    await staff.getByRole('button', { name: 'Save password', exact: true }).click();
+    await expect(staff.getByRole('heading', { name: 'Password updated' })).toBeVisible();
+    await staff.getByRole('button', { name: 'Back to sign in' }).click();
+    await staff.getByLabel('Email address').fill('journey-staff@example.test');
+    await staff.getByLabel('Password', { exact: true }).fill(password);
+    await staff.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(staff).toHaveURL(/\/projects$/);
+    await page.getByRole('button', { name: 'Search / refresh' }).click();
+    await expect(card).toContainText('active');
+    await page.getByRole('button', { name: 'Issue recovery link', exact: true }).click();
+    await page.getByLabel('Reason (required; do not include passwords or tokens)').fill('Verified recovery request');
+    await page.getByRole('checkbox', { name: /I verified this person's identity/ }).check();
+    await page.getByRole('button', { name: 'Confirm recovery', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'One-time recovery link' })).toBeVisible();
+    await page.getByRole('button', { name: 'Done — clear link' }).click();
+    await page.getByRole('button', { name: 'Deactivate', exact: true }).click();
+    await expect(page.getByText(/Business records and audit identity remain/)).toBeVisible();
+    await page.getByLabel('Reason (required; do not include passwords or tokens)').fill('Employment ended after review');
+    await page.getByRole('button', { name: 'Confirm deactivate', exact: true }).click();
+    await expect(card).toContainText('deactivated');
+    await staff.goto('/audit');
+    await expect(staff).toHaveURL(/\/login/);
+    await page.getByRole('button', { name: 'Reactivate', exact: true }).click();
+    await expect(page.getByText(/fresh setup link must be issued/)).toBeVisible();
+    await page.getByLabel('Reason (required; do not include passwords or tokens)').fill('Returning staff identity checked');
+    await page.getByRole('button', { name: 'Confirm reactivate', exact: true }).click();
+    await expect(card).toContainText('setup-required');
+    await expect(card.getByRole('button', { name: 'Issue setup link' })).toBeVisible();
+    await page.reload();
+    await page.getByLabel('Search staff').fill('Journey Staff Updated');
+    await page.getByRole('button', { name: 'Search / refresh' }).click();
+    await expect(card).toHaveCount(1);
+    await expect(card).toContainText('setup-required');
+  } finally { await context.close(); }
+});
+
+test('final active administrator rejection preserves account and session', async ({ page, staffServer }) => {
+  await login(page, staffServer);
+  await page.getByLabel('Search staff').fill(staffServer.email);
+  await page.getByRole('button', { name: 'Search / refresh' }).click();
+  await page.getByRole('button', { name: 'Deactivate', exact: true }).click();
+  await page.getByLabel('Reason (required; do not include passwords or tokens)').fill('Final administrator guard check');
+  const response = page.waitForResponse(r => r.url().endsWith('/deactivate'));
+  await page.getByRole('button', { name: 'Confirm deactivate', exact: true }).click();
+  expect((await response).status()).toBe(409);
+  await expect(page.getByRole('dialog').getByRole('alert')).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Create account', exact: true })).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Staff accounts' }).getByRole('listitem').filter({ hasText: staffServer.email })).toContainText('active');
+});
+
+test('unassigned non-administrator sees no-project state and cannot manage staff', async ({ page, staffServer }) => {
+  await login(page, staffServer, 'engineer', '/site-logs');
+  await expect(page.getByText(/No projects assigned. Contact your Administrator/)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Users and access', exact: true })).toHaveCount(0);
+  await page.goto('/users');
+  await expect(page.getByRole('heading', { name: 'Access denied', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Create account', exact: true })).toHaveCount(0);
+  const origin = staffServer.origin;
+  const csrf = (await (await page.request.get('/api/v1/auth/csrf')).json()).data.csrfToken;
+  const headers = { Origin: origin, 'X-CSRF-Token': csrf, 'Idempotency-Key': randomUUID() };
+  expect((await page.request.get('/api/v1/users')).status()).toBe(403);
+  const changed = await page.request.put('/api/v1/users/' + staffServer.adminId, { headers,
+    data: { displayName: 'Forbidden change', email: staffServer.email, role: 'site-engineer', projectIds: ['project-b'], version: 1 } });
+  expect(changed.status()).toBe(404);
+  expect((await changed.json()).error.code).toBe('NOT_FOUND');
+  const recovery = await page.request.post('/api/v1/users/' + staffServer.adminId + '/password-reset', { headers,
+    data: { version: 1, purpose: 'recovery', reason: 'Forbidden recovery attempt', identityVerified: true } });
+  expect(recovery.status()).toBe(403);
+  expect((await recovery.json()).error.code).toBe('FORBIDDEN');
+});
