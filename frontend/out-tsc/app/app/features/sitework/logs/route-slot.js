@@ -1,1 +1,0 @@
-export const LOGS_ROUTES = [{ path: 'site-logs', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'site-logs/new', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'site-logs/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

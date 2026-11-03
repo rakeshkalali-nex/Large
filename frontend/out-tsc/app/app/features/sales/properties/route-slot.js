@@ -1,1 +1,0 @@
-export const PROPERTIES_ROUTES = [{ path: 'properties', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'properties/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

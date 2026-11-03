@@ -1,1 +1,0 @@
-export const BUDGETS_ROUTES = [{ path: 'budgets', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'expenses', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

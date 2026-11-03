@@ -9,6 +9,7 @@ node_modules/
 !.env.example
 var/
 frontend/dist/
+frontend/out-tsc/
 frontend/.angular/
 coverage/
 test-results/

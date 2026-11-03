@@ -1,1 +1,0 @@
-export const DIRECTORY_ROUTES = [{ path: 'contractors', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'contractors/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];
