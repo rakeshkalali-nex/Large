@@ -1,0 +1,11 @@
+export interface NavigationItem { label: string; path: string; capability: string; }
+export interface NavigationGroup { label: string; items: NavigationItem[]; }
+export const NAVIGATION: NavigationGroup[] = [
+  { label: 'Overview', items: [{ label: 'Management dashboard', path: '/dashboard', capability: 'dashboard.read' }, { label: 'Reports', path: '/reports', capability: 'reports.read' }] },
+  { label: 'Construction', items: [{ label: 'Projects', path: '/projects', capability: 'projects.read' }, { label: 'Daily site logs', path: '/site-logs', capability: 'siteLogs.read' }, { label: 'Inspections', path: '/inspections', capability: 'inspections.read' }, { label: 'Site issues', path: '/issues', capability: 'issues.read' }] },
+  { label: 'Procurement', items: [{ label: 'Materials and suppliers', path: '/materials', capability: 'materials.read' }, { label: 'Site inventory', path: '/inventory', capability: 'inventory.read' }, { label: 'Purchase orders', path: '/purchase-orders', capability: 'purchaseOrders.read' }, { label: 'Goods receipts', path: '/goods-receipts', capability: 'goodsReceipts.read' }, { label: 'Stock movements', path: '/stock-movements', capability: 'stock.read' }] },
+  { label: 'Contractors', items: [{ label: 'Contractors', path: '/contractors', capability: 'contractors.read' }, { label: 'Work orders', path: '/work-orders', capability: 'workOrders.read' }] },
+  { label: 'Finance', items: [{ label: 'Project budgets', path: '/budgets', capability: 'budgets.read' }, { label: 'Expenses', path: '/expenses', capability: 'expenses.read' }, { label: 'Invoices and bills', path: '/invoices', capability: 'invoices.read' }, { label: 'Payments and receipts', path: '/payments', capability: 'payments.read' }] },
+  { label: 'Real Estate', items: [{ label: 'Property inventory', path: '/properties', capability: 'properties.read' }, { label: 'Leads and pipeline', path: '/leads', capability: 'leads.read' }, { label: 'Bookings', path: '/bookings', capability: 'bookings.read' }] },
+  { label: 'Administration', items: [{ label: 'Documents', path: '/documents', capability: 'documents.read' }, { label: 'Users and access', path: '/users', capability: 'users.manage' }, { label: 'Company settings', path: '/settings', capability: 'settings.manage' }, { label: 'Audit history', path: '/audit', capability: 'audit.read' }] }
+];

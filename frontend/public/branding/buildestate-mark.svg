@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>BuildEstate</title>
+  <rect width="64" height="64" rx="12" fill="#14283F"/>
+  <path d="M12 51h40M17 51V25l15-12 15 12v26M25 51V32h14v19M25 25h14M32 13v12" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M32 33v18" stroke="#5EEAD4" stroke-width="2"/>
+</svg>

@@ -1,0 +1,29 @@
+:host { display: block; min-height: 100dvh; }
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); min-height: 100dvh; }
+.shell.collapsed { grid-template-columns: 72px minmax(0, 1fr); }
+.shell.mobile { grid-template-columns: minmax(0, 1fr); }
+.sidebar, .drawer { background: #14283f; color: white; padding: 16px; overflow-y: auto; overflow-wrap: anywhere; }
+.sidebar { position: sticky; top: 0; height: 100dvh; }
+.drawer { height: 100%; box-sizing: border-box; }
+.brand { display: flex; align-items: center; gap: 8px; font-size: 24px; font-weight: 600; margin-bottom: 24px; }
+nav section h2 { font-size: 14px; margin: 24px 0 8px; }
+.sidebar a, .drawer a { color: white; display: flex; align-items: center; gap: 8px; padding: 8px; min-height: 44px; border-radius: 8px; text-decoration: none; }
+.sidebar a:hover, .drawer a:hover { background: #243447; text-decoration: underline; }
+.sidebar a.active, .drawer a.active { background: #0f766e; text-decoration: underline; font-weight: 600; }
+.sidebar :focus-visible, .drawer :focus-visible { outline-color: white; }
+.nav-mark { border: 1px solid currentColor; border-radius: 4px; width: 24px; height: 24px; text-align: center; flex-shrink: 0; }
+.collapsed .sidebar { padding: 8px; }
+.collapsed .sidebar .brand span, .collapsed .sidebar h2, .collapsed .sidebar .nav-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.collapsed .collapse { font-size: 12px; padding: 4px; width: 100%; }
+.workspace { min-width: 0; }
+header { min-height: 64px; background: white; border-bottom: 1px solid #cbd5e1; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 8px 24px; }
+.page-title { flex: 1 1 160px; font-weight: 600; }
+.project-picker { display: grid; gap: 4px; max-width: 100%; }
+.project-picker label { font-size: 14px; }
+.project-picker select { max-width: 280px; width: 100%; }
+.user { position: relative; max-width: 100%; }
+.user section { position: absolute; right: 0; z-index: 2; padding: 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: white; width: min(280px, calc(100vw - 32px)); overflow-wrap: anywhere; box-shadow: 0 2px 8px #14283f0d; }
+main { padding: 24px 32px; min-width: 0; }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 1000; background: white; padding: 16px; }
+.skip-link:focus { top: 8px; }
+@media (max-width: 768px) { header { padding: 16px; gap: 8px; } main { padding: 16px; } .project-picker { flex: 1 1 100%; } .project-picker select { max-width: none; } }

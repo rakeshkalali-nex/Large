@@ -1,0 +1,53 @@
+<ng-template #content><ng-content /></ng-template>
+<ng-template #navigation>
+  <nav aria-label="Main navigation">
+    @for (group of groups(); track group.label) {
+      <section><h2>{{ group.label }}</h2>
+        @for (item of group.items; track item.path) {
+          <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page" [title]="item.label">
+            <be-icon name="documents" /><span class="nav-label">{{ item.label }}</span>
+          </a>
+        }
+      </section>
+    }
+    @if (!groups().length) { <p>No navigation is permitted for this session.</p> }
+  </nav>
+</ng-template>
+<ng-template #drawer>
+  <div class="drawer"><button type="button" (click)="closeNavigation()">Close navigation</button><ng-container [ngTemplateOutlet]="navigation" /></div>
+</ng-template>
+@if (session.status() === 'authenticated') {
+  <a class="skip-link" href="#workspace-content">Skip to main content</a>
+  <div class="shell" [class.collapsed]="collapsed()" [class.mobile]="mobile()">
+    @if (!mobile()) {
+      <aside class="sidebar" aria-label="Workspace navigation">
+        <div class="brand"><img src="/branding/buildestate.svg" alt="" width="32" height="32"><span>BuildEstate</span></div>
+        <button type="button" class="collapse" (click)="collapsed.set(!collapsed())" [attr.aria-expanded]="!collapsed()" aria-controls="desktop-navigation">{{ collapsed() ? 'Expand' : 'Collapse' }}</button>
+        <div id="desktop-navigation"><ng-container [ngTemplateOutlet]="navigation" /></div>
+      </aside>
+    }
+    <div class="workspace">
+      <header>
+        @if (mobile()) { <button type="button" (click)="openNavigation()" aria-haspopup="dialog"><be-icon name="menu" /> Menu</button> }
+        <span class="page-title">{{ title() }}</span>
+        <div class="project-picker"><label for="shell-project">Project context</label>
+          <select id="shell-project" [value]="routeProjectId() ?? projects.context().projectId ?? ''" [disabled]="!!routeProjectId()" (change)="selectProject($event)">
+            <option value="">All authorized projects</option>
+            @for (id of session.projectIds(); track id) { <option [value]="id">{{ id }}</option> }
+          </select>
+        </div>
+        <div class="user"><button type="button" [attr.aria-expanded]="userOpen()" aria-controls="shell-user" (click)="userOpen.set(!userOpen())">{{ session.user()?.displayName }}</button>
+          @if (userOpen()) { <section id="shell-user" aria-label="Your account" (keydown.escape)="userOpen.set(false)"><p>{{ session.user()?.email }}</p><p>{{ session.user()?.role }}</p>
+            @if (canLogout) { <button type="button" (click)="logout()" [disabled]="loggingOut()" [attr.aria-busy]="loggingOut()">{{ loggingOut() ? 'Signing out…' : 'Sign out' }}</button> }
+            @if (logoutError()) { <p role="alert">{{ logoutError() }}</p> }
+          </section> }
+        </div>
+      </header>
+      <main id="workspace-content" tabindex="-1" data-page-content>
+        @if (parent(); as crumb) { <nav aria-label="Breadcrumb"><a [routerLink]="crumb.path">{{ crumb.label }}</a><span aria-hidden="true"> / </span><span aria-current="page">{{ title() }}</span></nav> }
+        @if (!session.projectIds().length) { <p role="status">No projects assigned. Contact your Administrator for access. This does not grant access to company-wide records.</p> }
+        <ng-container [ngTemplateOutlet]="content" />
+      </main>
+    </div>
+  </div>
+} @else { <ng-container [ngTemplateOutlet]="content" /> }

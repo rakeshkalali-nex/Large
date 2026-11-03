@@ -1,0 +1,47 @@
+.page-content {
+  min-inline-size: 0;
+  padding: var(--space-4);
+}
+.card, .dialog-surface {
+  min-inline-size: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-surface);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-surface);
+}
+.dialog-surface { max-block-size: calc(100dvh - 32px); overflow-y: auto; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.form-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.table-region { max-block-size: 65dvh; overflow-y: auto; }
+table { inline-size: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.875rem; line-height: 1.25rem; }
+th, td { height: 48px; padding: var(--space-1) var(--space-2); border-block-end: 1px solid var(--color-border); text-align: start; overflow-wrap: anywhere; }
+th { position: sticky; inset-block-start: 0; z-index: 1; background: var(--color-background); font-weight: 600; }
+tbody tr:hover { background: var(--color-background); }
+tbody tr[aria-selected='true'] { background: var(--color-selected); }
+.table-region table { table-layout: fixed; }
+.empty-state { padding: var(--space-4); text-align: center; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.sticky-actions { position: sticky; inset-block-end: 0; padding: var(--space-2); background: var(--color-surface); }
+// Horizontal overflow is opt-in, confined to a named ledger or timeline.
+.ledger-region[role='region']:is([aria-label], [aria-labelledby]),
+.timeline-region[role='region']:is([aria-label], [aria-labelledby]) { max-inline-size: 100%; overflow-x: auto; }
+@media (max-width: 1024px) {
+  :root { --sidebar-width: var(--sidebar-collapsed-width); }
+  .page-content { padding: var(--space-3); }
+}
+@media (max-width: 768px) {
+  .page-content { padding: var(--space-2); padding-block-end: max(var(--space-2), env(safe-area-inset-bottom)); }
+  .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .form-actions { flex-direction: column; }
+  .form-actions > :is(button, .button) { inline-size: 100%; }
+  .dialog-surface { padding: var(--space-2); max-inline-size: calc(100vw - 32px); }
+  // Opt-in stacked tables require explicit cell labels and HTML table roles.
+  .table--stacked, .table--stacked tbody, .table--stacked tr, .table--stacked td { display: block; inline-size: 100%; }
+  .table--stacked thead { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+  .table--stacked tr { padding: var(--space-1); border-block-end: 1px solid var(--color-border); }
+  .table--stacked td { height: auto; min-block-size: 48px; border: 0; text-align: start; }
+  .table--stacked td[data-label]::before { content: attr(data-label); display: block; font-weight: 600; }
+  .table-region:has(.table--stacked) { max-block-size: none; overflow: visible; }
+}
+@media (max-height: 600px) { .sticky-actions { position: static; } }

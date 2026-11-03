@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-@Component({ selector: 'app-root', standalone: true, imports: [RouterOutlet], template: '<router-outlet />' })
+import { AppShell } from './core/shell/app-shell';
+@Component({ selector: 'app-root', standalone: true, imports: [RouterOutlet, AppShell], template: '<be-app-shell><router-outlet /></be-app-shell>' })
 export class App {}
