@@ -1,0 +1,15 @@
+{
+  "name": "buildestate", "version": "0.1.0", "private": true, "type": "module",
+  "workspaces": ["frontend"], "engines": {"node": "22.23.1"}, "packageManager": "npm@10.9.8",
+  "scripts": {
+    "install:backend": "node scripts/run.mjs install:backend",
+    "migrate": "node scripts/run.mjs migrate", "bootstrap": "node scripts/run.mjs bootstrap",
+    "seed:development": "node scripts/run.mjs seed:development",
+    "backup": "node scripts/run.mjs backup", "restore:check": "node scripts/run.mjs restore:check",
+    "dev": "node scripts/run.mjs dev", "build": "node scripts/run.mjs build", "start": "node scripts/run.mjs start",
+    "test": "node scripts/run.mjs test", "test:backend": "node scripts/run.mjs test:backend",
+    "test:contracts": "node scripts/contracts.mjs", "generate:contracts": "node scripts/contracts.mjs --write",
+    "test:integration": "node scripts/run.mjs test:integration", "test:capacity": "node scripts/run.mjs test:capacity"
+  },
+  "devDependencies": {"@playwright/test": "1.64.1", "@apidevtools/swagger-parser": "13.1.0", "openapi-typescript": "7.13.0"}
+}

@@ -1,0 +1,2 @@
+import { Routes } from '@angular/router';
+export const ORDERS_ROUTES: Routes = [{ path: 'purchase-orders', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) },{ path: 'purchase-orders/new', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) },{ path: 'purchase-orders/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

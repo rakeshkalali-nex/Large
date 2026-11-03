@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","compilerOptions":{"types":["vitest/globals"],"outDir":"./out-tsc/spec"},"include":["src/**/*.ts"],"exclude":["../e2e/**"]}
