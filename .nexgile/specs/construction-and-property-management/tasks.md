@@ -79,7 +79,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: api_
   - _Issue: #4_
 
-- [ ] 5. Password setup, change and Administrator-assisted recovery
+- [x] 5. Password setup, change and Administrator-assisted recovery
   - Implement private local first-Administrator bootstrap, Argon2id hashing, 12-character minimum, 24-hour setup and 30-minute recovery tokens, trusted-channel guidance and replacement-token handling. Complete the operator command and recovery endpoints; enforce setup-only access and atomic token consumption, session revocation and audit on password completion.
   - Test bootstrap secrecy, repeated bootstrap rejection, unknown/expired/reused/revoked tokens, concurrent token use, authenticated password change and safe Administrator issuance. Document identity verification and private link delivery without storing an existing password or logging tokens.
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
