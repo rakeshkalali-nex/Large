@@ -105,7 +105,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: ui_
   - _Issue: #8_
 
-- [ ] 7. Users and access
+- [x] 7. Users and access
   - Deliver screen 34: searchable staff table/cards, account editor, explicit role/project checklist, one-time setup/recovery link dialog and reasoned deactivation confirmation. Implement users/roles/assignment endpoints, validation, lifecycle history, no-project feedback and current-session invalidation.
   - Test non-Administrator denial, preserved attribution, replacement setup on reactivation and serialized final-active-Administrator protection including competing changes. Scope permission updates to the affected users and keep the trusted-channel confirmation explicit.
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
@@ -319,7 +319,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: api_
   - _Issue: #7_
 
-- [ ] 26. Audit history
+- [x] 26. Audit history
   - Deliver screen 36 with actor/action/project/date filters, immutable event rows, safe before/after drawer and authorized record links; phones show event cards and labeled changes. Implement paginated audit reads with Administrator, Finance trail and Project Manager approval-trail projections.
   - Test immutability, no secret disclosure, parent-closure seven-year evidence retention, one-year authentication retention and source holds on exports. Audit writes remain owned by the shared writer and each transaction, not by this screen.
   - _Requirements: 25.1, 25.3, 25.4_
