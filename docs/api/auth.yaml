@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: BuildEstate implemented session API
+  version: 1.0.0
+  description: |
+    Area-owned implementation contract, consistent with the identity schema in
+    contract.mjs. Cookies are host-only, Path=/, SameSite=Lax. Session cookies are
+    HttpOnly; both cookies are Secure in HTTPS mode. No public registration.
+    Fetch csrf before login, then replace the CSRF value with the login response.
+    Restore me before rendering protected UI; never persist credentials in browser
+    storage or automatically replay mutations after expiry or connectivity failure.
+servers:
+  - url: /api/v1
+paths:
+  /auth/csrf:
+    get:
+      operationId: getSessionCsrf
+      security: []
+      responses:
+        '200':
+          description: Signed 30-minute nonce; sets buildestate_csrf cookie; no-store.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, requestId]
+                properties:
+                  requestId: {type: string, format: uuid}
+                  data:
+                    type: object
+                    required: [csrfToken, expiresAt]
+                    properties:
+                      csrfToken: {type: string}
+                      expiresAt: {type: string, format: date-time}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /auth/login:
+    post:
+      operationId: createSession
+      security: []
+      parameters:
+        - {$ref: '#/components/parameters/Csrf'}
+        - {$ref: '#/components/parameters/Origin'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, password]
+              properties:
+                email: {type: string, maxLength: 320}
+                password: {type: string, maxLength: 128, writeOnly: true}
+      responses:
+        '200':
+          description: Rotates opaque session and signed session-bound CSRF cookies; only hashes persisted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/IdentityEnvelope'}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '401':
+          description: Equal-shaped INVALID_CREDENTIALS for unknown, inactive or invalid credentials.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+        '403': {$ref: '#/components/responses/CsrfInvalid'}
+        '429': {$ref: '#/components/responses/Throttled'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /auth/me:
+    get:
+      operationId: restoreSession
+      description: Does not refresh idle expiry; no protected data should render until restoration succeeds.
+      security: [{session: []}]
+      responses:
+        '200':
+          description: Current persisted identity, assignments and closed server capability registry; no-store.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/IdentityEnvelope'}
+        '401':
+          description: AUTH_REQUIRED or SESSION_EXPIRED; clears session cookie.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /auth/logout:
+    post:
+      operationId: revokeSession
+      security: []
+      parameters:
+        - {$ref: '#/components/parameters/Csrf'}
+        - {$ref: '#/components/parameters/Origin'}
+      responses:
+        '204': {description: Revokes the presented session and clears both cookies. No response body.}
+        '403': {$ref: '#/components/responses/CsrfInvalid'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+components:
+  securitySchemes:
+    session: {type: apiKey, in: cookie, name: buildestate_session}
+  parameters:
+    Csrf:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema: {type: string}
+      description: Must equal the signed buildestate_csrf cookie and match current session binding.
+    Origin:
+      name: Origin
+      in: header
+      required: true
+      schema: {type: string}
+      description: Exact scheme and host including port. Forwarded authority is not trusted.
+  schemas:
+    IdentityEnvelope:
+      type: object
+      additionalProperties: false
+      required: [data, requestId]
+      properties:
+        requestId: {type: string, format: uuid}
+        data:
+          type: object
+          additionalProperties: false
+          required: [user, projectIds, capabilities, accessRevision, landingPath, setupRequired, csrfToken, idleExpiresAt, absoluteExpiresAt]
+          properties:
+            user:
+              type: object
+              additionalProperties: false
+              required: [id, displayName, email, role]
+              properties:
+                id: {type: string, format: uuid}
+                displayName: {type: string}
+                email: {type: string}
+                role:
+                  type: string
+                  enum: [administrator, project-manager, site-engineer, procurement-officer, finance-officer, sales-executive, management-viewer]
+            projectIds: {type: array, items: {type: string, format: uuid}}
+            capabilities: {type: array, items: {type: string}}
+            accessRevision: {type: integer, minimum: 1}
+            landingPath: {type: string}
+            setupRequired: {type: boolean}
+            csrfToken: {type: string}
+            idleExpiresAt: {type: string, format: date-time}
+            absoluteExpiresAt: {type: string, format: date-time}
+    ErrorEnvelope:
+      type: object
+      required: [error, requestId]
+      properties:
+        requestId: {type: string}
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: {type: string}
+            message: {type: string}
+  responses:
+    InvalidRequest:
+      description: Invalid JSON or unexpected fields; unsupported content type is 415 and oversized bodies are 413.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+    CsrfInvalid:
+      description: CSRF_INVALID; obtain a fresh nonce and deliberately retry.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+    Throttled:
+      description: Generic RATE_LIMITED; no account existence information. Five identifier and thirty peer-address attempts per fifteen minutes. Successful attempts conservatively consume budget too.
+      headers:
+        Retry-After: {schema: {type: integer}, description: Seconds until the limiting window expires.}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+    Unavailable:
+      description: Safe service/storage failure; no automatic mutation retry.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorEnvelope'}
