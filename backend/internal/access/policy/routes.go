@@ -17,6 +17,22 @@ func RouteCapability(method, path string) (capability string, individual bool, k
 			return "", false, false
 		}
 	}
+	if len(parts) == 2 && parts[0] == "settings" && parts[1] == "history" && method == "GET" {
+		return "settings.read", false, true
+	}
+	if parts[0] == "privacy-requests" || parts[0] == "retention-holds" || parts[0] == "retention-reviews" {
+		cap := "retention.manage"
+		if parts[0] == "privacy-requests" {
+			cap = "privacy.manage"
+		}
+		if method == "GET" && len(parts) <= 2 || method == "POST" && len(parts) == 1 {
+			return cap, false, true
+		}
+		if method == "POST" && len(parts) == 3 && (parts[0] == "privacy-requests" && (parts[2] == "review" || parts[2] == "execute") || parts[0] == "retention-holds" && parts[2] == "release" || parts[0] == "retention-reviews" && parts[2] == "execute") {
+			return cap, false, true
+		}
+		return "", false, false
+	}
 	if len(parts) == 1 {
 		if method == "GET" {
 			switch parts[0] {

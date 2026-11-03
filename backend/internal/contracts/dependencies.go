@@ -34,4 +34,5 @@ type Dependencies struct {
 	Costs        CostRecognition
 	Booking      BookingFinance
 	Projections  ReadProjections
+	Operator     OperatorDiagnostics
 }

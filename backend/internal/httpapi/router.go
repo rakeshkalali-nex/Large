@@ -1,7 +1,6 @@
 package httpapi
 
 import (
-	"context"
 	"log/slog"
 	"net/http"
 	"time"
@@ -13,17 +12,20 @@ import (
 	"buildestate/backend/internal/documents"
 	"buildestate/backend/internal/finance"
 	"buildestate/backend/internal/inventory"
-	"buildestate/backend/internal/platform/storage"
 	"buildestate/backend/internal/platform/transport"
 	"buildestate/backend/internal/procurement"
 	"buildestate/backend/internal/projects"
 	"buildestate/backend/internal/reporting"
 	"buildestate/backend/internal/sales"
+	"buildestate/backend/internal/settings"
 	"buildestate/backend/internal/sitework"
 )
 
 // New explicitly composes feature modules. Nil services never grant permissions.
 func New(d contracts.Dependencies, staticDir, attachmentsDir string, logger *slog.Logger) http.Handler {
+	if d.Operator == nil {
+		d.Operator = settings.NewOperatorDiagnostics(d.DB, attachmentsDir, time.Now().UTC())
+	}
 	mux := http.NewServeMux()
 	authentication := access.RegisterRoutes(mux, d)
 	administration.RegisterRoutes(mux, d)
@@ -40,9 +42,7 @@ func New(d contracts.Dependencies, staticDir, attachmentsDir string, logger *slo
 		transport.JSON(w, r, 200, map[string]string{"status": "ok"})
 	})
 	mux.HandleFunc("GET /api/v1/health/ready", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-		defer cancel()
-		if d.DB == nil || d.DB.PingContext(ctx) != nil || storage.Check(attachmentsDir) != nil {
+		if !d.Operator.Status(r.Context()).Ready {
 			transport.Error(w, r, 503, "SERVICE_UNAVAILABLE", "Service is not ready.")
 			return
 		}

@@ -1,11 +1,11 @@
 package administration
 
 import (
-	"net/http"
-	"buildestate/backend/internal/contracts"
-	"buildestate/backend/internal/administration/users"
-	"buildestate/backend/internal/administration/settings"
 	"buildestate/backend/internal/administration/audit"
+	"buildestate/backend/internal/administration/users"
+	"buildestate/backend/internal/contracts"
+	"buildestate/backend/internal/settings"
+	"net/http"
 )
 
 func RegisterRoutes(mux *http.ServeMux, dependencies contracts.Dependencies) {
