@@ -89,6 +89,9 @@ func RouteCapability(method, path string) (capability string, individual bool, k
 			return "handover.record", true, true
 		}
 	}
+	if len(parts) == 3 && parts[0] == "users" && parts[2] == "password-reset" && method == "POST" {
+		return "users.manage", false, true
+	}
 	if len(parts) > 2 {
 		return "", false, false
 	}

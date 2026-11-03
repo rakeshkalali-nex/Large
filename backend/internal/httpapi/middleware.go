@@ -57,7 +57,7 @@ func Middleware(next http.Handler, logger *slog.Logger) http.Handler {
 		r = r.WithContext(transport.WithRequestID(ctx, id))
 		w.Header().Set("X-Request-ID", id)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("Referrer-Policy", "same-origin")
+		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 		rw := &responseWriter{ResponseWriter: w}
 		started := time.Now()
