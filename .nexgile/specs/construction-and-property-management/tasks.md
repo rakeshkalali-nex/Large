@@ -42,7 +42,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: setup_
   - _Issue: #1_
 
-- [ ] 2. Shared accessible shell, architectural theme and IBM Plex Sans
+- [x] 2. Shared accessible shell, architectural theme and IBM Plex Sans
   - Build the permission-aware sidebar/header, project context, user menu, breadcrumbs, route focus, safe error handling and shared controls. Implement the design's exact shared-state/event contracts; session and permission stores consume the foundation's typed access interfaces. Use locally licensed IBM Plex Sans 400–700, global token styles, accessible CDK overlays, tabular figures and responsive navigation.
   - Add TestBed checks for all shared interaction states, safe unsaved values and deliberate retry, locale/date/currency formatting, keyboard dialogs, focus, reduced motion and responsive controls. Document real-browser compatibility checks still required by task 30.
   - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10_
