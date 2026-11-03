@@ -53,7 +53,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: ui_
   - _Issue: #2_
 
-- [ ] 3. Transaction integrity and independent approval infrastructure
+- [x] 3. Transaction integrity and independent approval infrastructure
   - Implement version checks, record metadata, lifecycle/archive helpers, persistent idempotency, eligible review-queue predicates, creator separation, atomic audit writes and rollback-safe service boundaries. Add shared exact-money/cost-source and posting-configuration interfaces with their concrete low-level helpers; domain decisions remain in their owning workflow.
   - Use fault-injected SQLite tests to prove no partial audit/review writes, stale edits, repeated effects or lost references. Audit every important mutation and authentication event through the safe writer; reject secret-bearing fields and preserve required actor/request metadata.
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 25.2_
