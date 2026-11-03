@@ -25,7 +25,7 @@ type MutationIdentity struct {
 	RequestID      string
 	Operation      string
 	IdempotencyKey string
-	RequestDigest string
+	RequestDigest  string
 }
 
 type RecordVersion struct {
@@ -46,4 +46,16 @@ type CommittedResult struct {
 	ResourceType string
 	ResourceID   string
 	Version      int64
+}
+
+// PostingConfiguration is checked inside the same transaction as posting.
+type PostingConfiguration interface {
+	RequireReady(context.Context, Transaction) (PostingSettings, error)
+	LockCurrency(context.Context, Transaction) error
+}
+
+type PostingSettings struct {
+	CurrencyCode string
+	MinorDigits  int
+	Timezone     string
 }
