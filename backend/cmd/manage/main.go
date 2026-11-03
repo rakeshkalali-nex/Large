@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"buildestate/backend/internal/access/bootstrap"
 	"buildestate/backend/internal/platform/config"
 	"buildestate/backend/internal/platform/database"
 )
@@ -15,11 +16,19 @@ func run() error {
 		return fmt.Errorf("usage: manage migrate|bootstrap|seed:development|backup|restore:check")
 	}
 	switch os.Args[1] {
-	case "bootstrap", "seed:development", "backup", "restore:check":
+	case "seed:development", "backup", "restore:check":
 		return fmt.Errorf("%s is unavailable until its owning feature is implemented", os.Args[1])
-	case "migrate":
+	case "migrate", "bootstrap":
 	default:
 		return fmt.Errorf("unknown operator command")
+	}
+	var input bootstrap.Input
+	if os.Args[1] == "bootstrap" {
+		var err error
+		input, err = readBootstrapStdin()
+		if err != nil {
+			return err
+		}
 	}
 	c, err := config.Load()
 	if err != nil {
@@ -34,6 +43,9 @@ func run() error {
 	defer db.Close()
 	if err = database.Migrate(ctx, db); err != nil {
 		return fmt.Errorf("database migration failed")
+	}
+	if os.Args[1] == "bootstrap" {
+		return runBootstrap(ctx, db, input, os.Stdout)
 	}
 	fmt.Println("Migrations applied successfully.")
 	return nil
