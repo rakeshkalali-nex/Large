@@ -25,7 +25,7 @@ import (
 // New explicitly composes feature modules. Nil services never grant permissions.
 func New(d contracts.Dependencies, staticDir, attachmentsDir string, logger *slog.Logger) http.Handler {
 	mux := http.NewServeMux()
-	access.RegisterRoutes(mux, d)
+	authentication := access.RegisterRoutes(mux, d)
 	administration.RegisterRoutes(mux, d)
 	contractors.RegisterRoutes(mux, d)
 	documents.RegisterRoutes(mux, d)
@@ -50,13 +50,18 @@ func New(d contracts.Dependencies, staticDir, attachmentsDir string, logger *slo
 	})
 	mux.Handle("/", staticHandler(staticDir))
 	// ServeMux's built-in 405 uses plain text; API failures must retain the envelope.
+	protected := authentication.Protect(mux)
 	dispatch := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, pattern := mux.Handler(r)
 		if pattern == "" {
 			transport.Error(w, r, 405, "METHOD_NOT_ALLOWED", "Method not allowed.")
 			return
 		}
-		mux.ServeHTTP(w, r)
+		if pattern == "/" {
+			mux.ServeHTTP(w, r)
+			return
+		}
+		protected.ServeHTTP(w, r)
 	})
 	return Middleware(dispatch, logger)
 }

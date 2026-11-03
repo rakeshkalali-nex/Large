@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"buildestate/backend/internal/access/policy"
+	"buildestate/backend/internal/access/sessions"
 	"buildestate/backend/internal/contracts"
 	"buildestate/backend/internal/httpapi"
 	"buildestate/backend/internal/platform/clock"
@@ -49,7 +51,12 @@ func run(logger *slog.Logger) error {
 	if err != nil {
 		return errors.New("listener startup failed")
 	}
-	server := &http.Server{Handler: httpapi.New(contracts.Dependencies{DB: db, ReadDB: readers, Clock: clock.UTC{}}, c.StaticDir, c.AttachmentsDir, logger), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 120 * time.Second, WriteTimeout: 125 * time.Second, IdleTimeout: 60 * time.Second}
+	key, err := sessions.LoadKey(c.DataDir)
+	if err != nil {
+		listener.Close()
+		return errors.New("session key initialization failed")
+	}
+	server := &http.Server{Handler: httpapi.New(contracts.Dependencies{DB: db, ReadDB: readers, Clock: clock.UTC{}, SessionKey: key, CookieSecure: c.CookieSecure, Policy: policy.Service{DB: db, Clock: clock.UTC{}}}, c.StaticDir, c.AttachmentsDir, logger), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 120 * time.Second, WriteTimeout: 125 * time.Second, IdleTimeout: 60 * time.Second}
 	signals, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	exited := make(chan error, 1)

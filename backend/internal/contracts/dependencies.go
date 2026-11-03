@@ -23,6 +23,8 @@ type Policy interface {
 // is unavailable, never implicit permission or a successful no-op.
 type Dependencies struct {
 	DB           *sql.DB
+	SessionKey   []byte // Private persistent CSRF/rate-limit signing key, never a bearer credential.
+	CookieSecure bool
 	ReadDB       *sql.DB
 	Clock        Clock
 	Policy       Policy
