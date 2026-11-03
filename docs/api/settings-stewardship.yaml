@@ -1,0 +1,294 @@
+openapi: 3.1.0
+info:
+  title: Company settings and stewardship
+  version: 1.0.0
+servers: [{url: /api/v1}]
+security: [{session: []}]
+x-envelope: 'Success: {data: <schema>, requestId: string}; errors: {error:{code,message},requestId}.'
+x-errors: {400: MALFORMED_REQUEST, 401: AUTH_REQUIRED, 403: FORBIDDEN, 404: NOT_FOUND, 409: STALE_VERSION, 422: VALIDATION_FAILED, 503: SERVICE_UNAVAILABLE}
+x-mutations: 'Require current session, X-CSRF-Token and UUID Idempotency-Key. Versions are checked inside the write transaction; effects, audit and duplicate protection commit atomically. No client-controlled grants.'
+x-pagination: 'History, privacy-request, retention-hold and retention-review lists accept limit (1–100, default 100) and offset (nonnegative, default 0). Unknown/duplicate query fields are rejected; data remains an array. Fetch the next offset until a short page.'
+paths:
+  /settings:
+    get:
+      operationId: getSettings
+      x-permission: settings.read
+      responses:
+        '200': {description: Settings, content: {application/json: {schema: {$ref: '#/components/schemas/SettingsEnvelope'}}}}
+    put:
+      operationId: updateSettings
+      x-permission: settings.manage
+      description: Explicit policy confirmation required; currency cannot change after financial posting. Checklist changes require a new revision with an empty id.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SettingsInput'}}}}
+      responses:
+        '200': {description: Saved settings, content: {application/json: {schema: {$ref: '#/components/schemas/SettingsEnvelope'}}}}
+  /settings/history:
+    get:
+      operationId: settingsHistory
+      x-permission: settings.read
+      responses:
+        '200': {description: Newest history first, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {type: array, items: {$ref: '#/components/schemas/History'}}}}}}}
+  /projects/{id}/overrides:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    get:
+      operationId: getProjectOverrides
+      x-permission: projects.manage
+      responses: {'200': {$ref: '#/components/responses/Overrides'}}
+    put:
+      operationId: updateProjectOverrides
+      x-permission: projects.manage
+      description: Stock changes additionally require inventory.minimums. Authorization and approval overrides are rejected.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Overrides'}}}}
+      responses: {'200': {$ref: '#/components/responses/Overrides'}}
+  /policy-acknowledgments:
+    post:
+      operationId: acknowledgePolicy
+      x-permission: privacy.acknowledge
+      description: Existing authorized subject, current confirmed notice and valid timestamp required. Company reference privacy.consent-required controls explicit consent; absence means required. Client consentRequired must match; true requires consentGiven true, false permits null. Project overrides cannot change policy.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Acknowledgment'}}}}
+      responses: {'200': {description: Recorded acknowledgment, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {$ref: '#/components/schemas/AcknowledgmentRecord'}}}}}}}
+  /privacy-requests:
+    get:
+      operationId: listPrivacyRequests
+      x-permission: privacy.manage
+      responses: {'200': {description: Privacy requests, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {type: array, items: {$ref: '#/components/schemas/PrivacyRequest'}}}}}}}}
+    post:
+      operationId: createPrivacyRequest
+      x-permission: privacy.manage
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PrivacyInput'}}}}
+      responses: {'200': {$ref: '#/components/responses/PrivacyRequest'}}
+  /privacy-requests/{id}:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    get:
+      operationId: getPrivacyRequest
+      x-permission: privacy.manage
+      responses: {'200': {$ref: '#/components/responses/PrivacyRequest'}}
+  /privacy-requests/{id}/review:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    post:
+      operationId: reviewPrivacyRequest
+      x-permission: privacy.manage
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [version, decision, reason], properties: {version: {type: integer}, decision: {enum: [approve, reject]}, reason: {type: string}, corrections: {$ref: '#/components/schemas/Contact'}}}}}}
+      responses: {'200': {$ref: '#/components/responses/PrivacyRequest'}}
+  /privacy-requests/{id}/execute:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    post:
+      operationId: executePrivacyRequest
+      x-permission: privacy.manage
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Version'}}}}
+      responses: {'200': {$ref: '#/components/responses/PrivacyRequest'}}
+  /retention-holds:
+    get:
+      operationId: listHolds
+      x-permission: retention.manage
+      responses: {'200': {description: Holds, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {type: array, items: {$ref: '#/components/schemas/Hold'}}}}}}}}
+    post:
+      operationId: createHold
+      x-permission: retention.manage
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [recordType, recordId, reason], properties: {recordType: {type: string}, recordId: {type: string}, reason: {type: string}, reviewAt: {type: [string, 'null'], format: date-time}}}}}}
+      responses: {'200': {$ref: '#/components/responses/Hold'}}
+  /retention-holds/{id}/release:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    post:
+      operationId: releaseHold
+      x-permission: retention.manage
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/VersionReason'}}}}
+      responses: {'200': {$ref: '#/components/responses/Hold'}}
+  /retention-reviews:
+    get:
+      operationId: listRetentionReviews
+      x-permission: retention.manage
+      responses: {'200': {description: Retention reviews, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {type: array, items: {$ref: '#/components/schemas/RetentionReview'}}}}}}}}
+    post:
+      operationId: createRetentionReview
+      x-permission: retention.manage
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [asOfDate], properties: {asOfDate: {type: string, format: date}, projectId: {type: [string, 'null']}}}}}}
+      responses: {'200': {$ref: '#/components/responses/RetentionReview'}}
+  /retention-reviews/{id}:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    get:
+      operationId: getRetentionReview
+      x-permission: retention.manage
+      responses: {'200': {$ref: '#/components/responses/RetentionReview'}}
+  /retention-reviews/{id}/execute:
+    parameters: [{$ref: '#/components/parameters/id'}]
+    post:
+      operationId: executeRetentionReview
+      x-permission: retention.manage
+      description: Rechecks eligibility and inherited holds; required evidence is retained.
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [version, recordIds, reason], properties: {version: {type: integer}, recordIds: {type: array, items: {type: string}}, reason: {type: string}}}}}}
+      responses: {'200': {$ref: '#/components/responses/RetentionReview'}}
+  /operator/status:
+    get:
+      operationId: getOperatorStatus
+      x-permission: operator.read
+      responses: {'200': {description: Sanitized operator diagnostics, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {$ref: '#/components/schemas/OperatorStatus'}}}}}}}
+components:
+  responses:
+    PrivacyRequest: {description: Privacy request and review history, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {$ref: '#/components/schemas/PrivacyRequest'}}}}}}
+    Hold: {description: Legal hold with release history, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {$ref: '#/components/schemas/Hold'}}}}}}
+    RetentionReview: {description: Retention review and candidate evidence, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {$ref: '#/components/schemas/RetentionReview'}}}}}}
+    Overrides: {description: Scoped operational overrides, content: {application/json: {schema: {type: object, required: [data, requestId], properties: {requestId: {type: string}, data: {allOf: [{$ref: '#/components/schemas/Overrides'}, {type: object, properties: {projectId: {type: string}}}]}}}}}}
+  securitySchemes:
+    session: {type: apiKey, in: cookie, name: buildestate_session}
+  parameters:
+    id: {name: id, in: path, required: true, schema: {type: string}}
+  schemas:
+    Version: {type: object, additionalProperties: false, required: [version], properties: {version: {type: integer, minimum: 1}}}
+    VersionReason: {type: object, additionalProperties: false, required: [version, reason], properties: {version: {type: integer, minimum: 1}, reason: {type: string, minLength: 1}}}
+    Contact: {type: object, additionalProperties: false, properties: {name: {type: string}, email: {type: string}, phone: {type: string}}}
+    Reference: {type: object, additionalProperties: false, required: [key, value, label], properties: {key: {type: string}, value: {type: string}, label: {type: string}}}
+    Checklist: {type: object, additionalProperties: false, required: [id, name, items], properties: {id: {type: string}, name: {type: string}, items: {type: array, items: {type: string}}}}
+    SettingsInput:
+      type: object
+      additionalProperties: false
+      required: [version, companyName, branding, currencyCode, currencyMinorDigits, timezone, timezoneConfirmed, recoveryInstructions, recoveryContactLabel, reservationHours, referenceValues, inspectionChecklists, propertyTypes, operatingPolicy, confirmOperationalPolicy]
+      properties:
+        version: {type: integer, minimum: 0}
+        companyName: {type: string, minLength: 1, maxLength: 200}
+        branding: {type: object, properties: {wordmark: {type: string}, logoDocumentId: {type: [string, 'null']}}}
+        currencyCode: {type: [string, 'null'], description: Explicit supported ISO currency code}
+        currencyMinorDigits: {type: [integer, 'null'], minimum: 0, maximum: 4}
+        timezone: {type: string, example: UTC}
+        timezoneConfirmed: {type: boolean}
+        recoveryInstructions: {type: string}
+        recoveryContactLabel: {type: string}
+        reservationHours: {type: integer, minimum: 1, maximum: 8760}
+        referenceValues: {type: array, items: {$ref: '#/components/schemas/Reference'}}
+        inspectionChecklists: {type: array, items: {$ref: '#/components/schemas/Checklist'}}
+        propertyTypes: {type: array, items: {type: string}}
+        operatingPolicy: {type: object, properties: {countries: {type: array, items: {type: string, pattern: '^[A-Z]{2}$'}}, noticeVersion: {type: [string, 'null']}, retentionScheduleVersion: {type: [string, 'null']}}}
+        confirmOperationalPolicy: {type: boolean}
+    SettingsEnvelope:
+      type: object
+      required: [data, requestId]
+      properties:
+        requestId: {type: string}
+        data: {$ref: '#/components/schemas/Settings'}
+    Settings:
+      type: object
+      required: [version, companyName, branding, currencyCode, currencyMinorDigits, currencyLocked, timezone, timezoneConfirmed, recoveryInstructions, recoveryContactLabel, reservationHours, referenceValues, inspectionChecklists, propertyTypes, operatingPolicy]
+      properties:
+        version: {type: integer, minimum: 0}
+        companyName: {type: string}
+        branding: {type: object, required: [wordmark, logoDocumentId], properties: {wordmark: {type: string}, logoDocumentId: {type: [string, 'null']}}}
+        currencyCode: {type: [string, 'null']}
+        currencyMinorDigits: {type: [integer, 'null']}
+        currencyLocked: {type: boolean}
+        timezone: {type: string}
+        timezoneConfirmed: {type: boolean}
+        recoveryInstructions: {type: string}
+        recoveryContactLabel: {type: string}
+        reservationHours: {type: integer}
+        referenceValues: {type: array, items: {$ref: '#/components/schemas/Reference'}}
+        inspectionChecklists: {type: array, items: {$ref: '#/components/schemas/Checklist'}}
+        propertyTypes: {type: array, items: {type: string}}
+        operatingPolicy: {type: object, required: [countries, noticeVersion, retentionScheduleVersion, confirmedAt], properties: {countries: {type: array, items: {type: string}}, noticeVersion: {type: [string, 'null']}, retentionScheduleVersion: {type: [string, 'null']}, confirmedAt: {type: [string, 'null'], format: date-time}}}
+    History:
+      type: object
+      required: [id, action, version, actorId, occurredAt, settings]
+      properties:
+        id: {type: string}
+        action: {const: settings.update}
+        version: {type: integer}
+        actorId: {type: string}
+        occurredAt: {type: string, format: date-time}
+        settings: {$ref: '#/components/schemas/Settings'}
+    PrivacyRequest:
+      type: object
+      required: [id, version, subjectType, subjectId, kind, reason, status, createdAt, completedAt, review, accessResult]
+      properties:
+        id: {type: string}
+        version: {type: integer}
+        subjectType: {enum: [user, lead, customer, supplier-contact, contractor-contact]}
+        subjectId: {type: string}
+        kind: {enum: [access, correction, anonymization]}
+        reason: {type: string}
+        status: {enum: [submitted, approved, rejected, completed]}
+        createdAt: {type: string, format: date-time}
+        completedAt: {type: [string, 'null'], format: date-time}
+        review: {type: [object, 'null'], properties: {reviewedBy: {type: string}, reviewedAt: {type: string, format: date-time}, reason: {type: string}, corrections: {$ref: '#/components/schemas/NullableContact'}}}
+        accessResult: {oneOf: [{$ref: '#/components/schemas/NullableContact'}, {type: 'null'}]}
+    NullableContact: {type: object, required: [name, email, phone], properties: {name: {type: [string, 'null']}, email: {type: [string, 'null']}, phone: {type: [string, 'null']}}}
+    Hold:
+      type: object
+      required: [id, version, projectId, recordType, recordId, reason, reviewAt, status, releasedAt, releaseReason]
+      properties:
+        id: {type: string}
+        version: {type: integer}
+        projectId: {type: [string, 'null']}
+        recordType: {type: string}
+        recordId: {type: string}
+        reason: {type: string}
+        reviewAt: {type: [string, 'null'], format: date-time}
+        status: {enum: [active, released]}
+        releasedAt: {type: [string, 'null'], format: date-time}
+        releaseReason: {type: [string, 'null']}
+    RetentionReview:
+      type: object
+      required: [id, version, projectId, asOfDate, status, executedAt, executionReason, candidates]
+      properties:
+        id: {type: string}
+        version: {type: integer}
+        projectId: {type: [string, 'null']}
+        asOfDate: {type: string, format: date}
+        status: {enum: [reviewed, executed]}
+        executedAt: {type: [string, 'null'], format: date-time}
+        executionReason: {type: [string, 'null']}
+        candidates: {type: array, items: {type: object, required: [id, recordType, recordId, eligibleAt, action, executedAt, holdIds], properties: {id: {type: string}, recordType: {type: string}, recordId: {type: string}, eligibleAt: {type: string, format: date-time}, action: {enum: [retain, anonymize, purge]}, executedAt: {type: [string, 'null'], format: date-time}, holdIds: {type: array, items: {type: string}}}}}
+    OperatorStatus:
+      type: object
+      required: [version, startedAt, ready, database, attachments, backup]
+      properties:
+        version: {type: string}
+        startedAt: {type: string, format: date-time}
+        ready: {type: boolean}
+        database: {$ref: '#/components/schemas/Diagnostic'}
+        attachments: {$ref: '#/components/schemas/Diagnostic'}
+        backup: {type: object, required: [status, lastSuccessAt, nextDueAt, diagnosticId], properties: {status: {type: string}, lastSuccessAt: {type: [string, 'null'], format: date-time}, nextDueAt: {type: [string, 'null'], format: date-time}, diagnosticId: {type: [string, 'null']}}}
+    Diagnostic: {type: object, required: [status], properties: {status: {type: string}, diagnosticId: {type: [string, 'null']}}}
+    AcknowledgmentRecord:
+      type: object
+      required: [id, createdAt, subjectType, subjectId, noticeVersion, acknowledgedAt, consentRequired, consentGiven, recordedByReason]
+      properties:
+        id: {type: string}
+        createdAt: {type: string, format: date-time}
+        subjectType: {type: string}
+        subjectId: {type: string}
+        noticeVersion: {type: string}
+        acknowledgedAt: {type: string, format: date-time}
+        consentRequired: {type: boolean}
+        consentGiven: {type: [boolean, 'null']}
+        recordedByReason: {type: string}
+    Overrides:
+      type: object
+      additionalProperties: false
+      required: [version, stockMinimums, inspectionChecklistIds, referenceValues]
+      properties:
+        projectId: {type: string, description: Server response project identity; path determines update scope}
+        version: {type: integer, minimum: 0}
+        reservationHours: {type: [integer, 'null'], minimum: 1}
+        stockMinimums: {type: array, items: {type: object, properties: {siteId: {type: [string, 'null']}, materialId: {type: string}, minimumQuantity: {type: string, pattern: '^[0-9]+(\.[0-9]{1,3})?$'}}}}
+        inspectionChecklistIds: {type: array, items: {type: string}}
+        referenceValues: {type: array, items: {type: object, properties: {key: {type: string}, value: {type: string}}}}
+    Acknowledgment:
+      type: object
+      additionalProperties: false
+      required: [subjectType, subjectId, noticeVersion, acknowledgedAt, consentRequired, recordedByReason]
+      properties:
+        subjectType: {enum: [user, lead, customer, supplier-contact, contractor-contact]}
+        subjectId: {type: string}
+        noticeVersion: {type: string}
+        acknowledgedAt: {type: string, format: date-time}
+        consentRequired: {type: boolean}
+        consentGiven: {type: [boolean, 'null']}
+        recordedByReason: {type: string}
+    PrivacyInput:
+      type: object
+      additionalProperties: false
+      required: [subjectType, subjectId, kind, reason]
+      properties:
+        subjectType: {enum: [user, lead, customer, supplier-contact, contractor-contact]}
+        subjectId: {type: string}
+        kind: {enum: [access, correction, anonymization]}
+        reason: {type: string, minLength: 1}

@@ -21,6 +21,12 @@ func WithPrincipal(ctx context.Context, p Principal) context.Context {
 	return context.WithValue(ctx, principalKey{}, p)
 }
 
+// PrincipalFrom returns middleware identity; callers must still authorize it.
+func PrincipalFrom(ctx context.Context) Principal {
+	p, _ := ctx.Value(principalKey{}).(Principal)
+	return p
+}
+
 type Service struct {
 	DB    *sql.DB
 	Clock contracts.Clock

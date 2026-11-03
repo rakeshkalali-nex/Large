@@ -1,0 +1,24 @@
+:host { display: block; max-width: 1120px; margin: auto; color: var(--text, #243447); }
+.eyebrow { color: #526170; font-size: .875rem; }
+header { margin-bottom: 24px; }
+section, fieldset { background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 24px; margin: 24px 0; min-width: 0; }
+legend { font-weight: 600; font-size: 1.25rem; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+label { display: flex; flex-direction: column; gap: 8px; }
+input, textarea, select { width: 100%; box-sizing: border-box; min-height: 44px; }
+textarea { min-height: 96px; resize: vertical; }
+.wide { grid-column: 1 / -1; }
+.check { flex-direction: row; align-items: center; margin: 16px 0; }
+.check input { width: 20px; min-height: 20px; flex: 0 0 20px; }
+.entry { padding: 16px 0; border-top: 1px solid #cbd5e1; margin-bottom: 16px; }
+button { min-height: 44px; padding: 8px 16px; }
+.primary { color: white; background: #0f766e; }
+.error { background: #fef2f2; color: #b91c1c; padding: 16px; border-radius: 8px; }
+.warning { background: #fff7ed; color: #85400b; padding: 16px; border-radius: 8px; }
+small { color: #526170; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+dd, article { overflow-wrap: anywhere; }
+dt { font-weight: 600; margin-top: 12px; }
+dd { margin-left: 0; }
+.ng-invalid.ng-touched:not(form) { border-color: #b91c1c; }
+@media (max-width: 640px) { .grid { grid-template-columns: minmax(0, 1fr); } section, fieldset { padding: 16px; } button { width: 100%; } }

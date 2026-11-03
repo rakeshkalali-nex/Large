@@ -1,0 +1,56 @@
+<header><p class="eyebrow">Administration / Company settings</p><h1>Company settings</h1><p>Company rules, personal-data stewardship and local service health.</p></header>
+@if (loading()) { <p role="status">Loading company settings…</p> }
+@if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+@if (!record() && !loading()) { <button type="button" (click)="load()">Retry loading settings</button> }
+@if (record(); as current) {
+  @if (!current.currencyCode || !current.timezoneConfirmed || !current.operatingPolicy.confirmedAt) {
+    <aside class="warning"><strong>Operational setup is incomplete.</strong> Choose a base currency, confirm the timezone and record the owner's approved operating policy before live personal records or operational posting.</aside>
+  }
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <fieldset [disabled]="mutation.pending()"><legend>Company and branding</legend><div class="grid">
+      <label>Company name<input formControlName="companyName" maxlength="200" required></label>
+      <label>Wordmark<input formControlName="wordmark" maxlength="100" required></label>
+      <label>Logo document ID (optional)<input formControlName="logoDocumentId"><small>Use an authorized uploaded image document.</small></label>
+      <label>Recovery contact label<input formControlName="recoveryContactLabel" required></label>
+      <label class="wide">Administrator recovery instructions<textarea formControlName="recoveryInstructions" required></textarea></label>
+    </div></fieldset>
+    <fieldset [disabled]="mutation.pending()"><legend>Currency and timezone</legend>
+      @if (current.currencyLocked) { <p class="warning">Currency is locked because financial posting has started.</p> }
+      <div class="grid"><label>Base currency (ISO code)<input formControlName="currencyCode" maxlength="3" placeholder="Choose a currency" required></label>
+      <label>Currency minor-unit digits<input type="number" formControlName="currencyMinorDigits" min="0" max="4" step="1" required></label>
+      <label>Company timezone<input formControlName="timezone" placeholder="UTC" required><small>IANA timezone, for example UTC or Asia/Kolkata.</small></label>
+      <label class="check"><input type="checkbox" formControlName="timezoneConfirmed">I confirm this company timezone</label></div>
+    </fieldset>
+    <fieldset [disabled]="mutation.pending()"><legend>Operational defaults</legend><div class="grid">
+      <label>Reservation duration (hours)<input type="number" formControlName="reservationHours" min="1" step="1" required></label>
+      <label>Property types (one per line)<textarea formControlName="propertyTypes"></textarea></label>
+    </div><h3>Reference values</h3><div formArrayName="referenceValues">
+      @for (row of form.controls.referenceValues.controls; track row; let i = $index) {
+        <div class="grid entry" [formGroupName]="i"><label>Reference key<input formControlName="key" required></label><label>Value<input formControlName="value" required></label><label>Display label<input formControlName="label" required></label><button type="button" (click)="form.controls.referenceValues.removeAt(i)">Remove reference {{ i + 1 }}</button></div>
+      }
+    </div><button type="button" (click)="addReference()">Add reference value</button>
+    <h3>Inspection checklists</h3><div formArrayName="inspectionChecklists">
+      @for (row of form.controls.inspectionChecklists.controls; track row; let i = $index) {
+        <div class="grid entry" [formGroupName]="i"><label>Checklist ID (assigned on save)<input formControlName="id" readonly></label><label>Checklist name<input formControlName="name" [readOnly]="!!row.controls.id.value" required></label><label>Checks (one per line)<textarea formControlName="items" [readOnly]="!!row.controls.id.value" required></textarea></label>@if (row.controls.id.value) { <button type="button" (click)="row.controls.id.setValue('')">Revise checklist {{ i + 1 }} (preserve prior evidence)</button> }<button type="button" (click)="form.controls.inspectionChecklists.removeAt(i)">Remove checklist {{ i + 1 }}</button></div>
+      }
+    </div><button type="button" (click)="addChecklist()">Add inspection checklist</button></fieldset>
+    <fieldset [disabled]="mutation.pending()"><legend>Owner-approved operating policy</legend>
+      <p>Record approval evidence in local operating documentation. These settings do not certify compliance with any jurisdiction.</p>
+      <div class="grid"><label>Operating countries (two-letter codes, comma separated)<input formControlName="countries" placeholder="Enter operating countries" required></label>
+      <label>Approved privacy notice version<input formControlName="noticeVersion" required></label>
+      <label>Approved retention schedule version<input formControlName="retentionScheduleVersion" required></label></div>
+      <label class="check"><input type="checkbox" formControlName="confirmOperationalPolicy">The owner has recorded operating countries, the approved privacy notice and retention schedule in local operating documentation</label>
+      <p>Last confirmation: {{ current.operatingPolicy.confirmedAt || 'Not yet confirmed' }}</p>
+    </fieldset>
+    @if (mutation.failure(); as failure) { <p class="error" role="alert">{{ failure.message }} Values have not been discarded.</p><button type="button" (click)="compare()">Compare latest saved settings</button> }
+    @if (comparison(); as latest) { <section><h2>Latest saved settings — version {{ latest.version }}</h2><pre>{{ latest | json }}</pre><p>Your form remains unchanged. Reload only after copying any changes you want to keep.</p></section> }
+    @if (saved()) { <p role="status">Company settings saved.</p> }
+    <button class="primary" type="submit" [disabled]="mutation.pending()" [attr.aria-busy]="mutation.pending()">{{ mutation.pending() ? 'Saving…' : 'Save company settings' }}</button>
+  </form>
+  <be-stewardship-panel [consentRequired]="consentRequired()" />
+  <section><h2>Change history</h2>@for (item of history(); track item.id) { <article><strong>{{ item.action }}</strong><p>{{ item.occurredAt }} · {{ item.actorId }}</p>@if (item.reason) { <p>{{ item.reason }}</p> }@if (item.settings) { <details><summary>Saved values for revision {{ item.id }}</summary><pre>{{ item.settings | json }}</pre></details> }</article> } @empty { <p>No change history loaded.</p> }<nav aria-label="Settings history pages"><button type="button" [disabled]="!historyOffset()" (click)="historyPage(-1)">Previous changes</button><button type="button" [disabled]="history().length < 100" (click)="historyPage(1)">Older changes</button></nav></section>
+  <section><h2>Local operator status</h2><button type="button" (click)="refreshAuxiliary()">Refresh history and status</button>
+    @if (auxiliaryError()) { <p role="alert">{{ auxiliaryError() }}</p> }
+    @if (operator(); as status) { <dl><dt>Startup</dt><dd>{{ status.startedAt }}</dd><dt>Readiness</dt><dd>{{ status.ready ? 'Ready' : 'Not ready' }}</dd><dt>Database</dt><dd>{{ status.database.status }} {{ status.database.diagnosticId }}</dd><dt>Attachment storage</dt><dd>{{ status.attachments.status }} {{ status.attachments.diagnosticId }}</dd><dt>Backup</dt><dd>{{ status.backup.status }} · {{ status.backup.diagnosticId }}</dd><dt>Last successful backup</dt><dd>{{ status.backup.lastSuccessAt || 'No successful backup recorded' }}</dd><dt>Next backup due</dt><dd>{{ status.backup.nextDueAt || 'Not scheduled' }}</dd></dl> }
+  </section>
+}
