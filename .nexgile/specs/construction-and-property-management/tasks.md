@@ -66,7 +66,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Area: api_
   - _Issue: #3_
 
-- [ ] 4. Secure sessions and server-determined project permissions
+- [x] 4. Secure sessions and server-determined project permissions
   - Implement login, identity restoration, logout, CSRF, opaque hashed session tokens, current-account checks and deny-by-default capability/project/field policies. Apply the design's 30-minute idle and 12-hour absolute expiry, identifier/origin rate limits, exact cookie policy and access-revision invalidation, including rechecking permission in write transactions.
   - Test all seven roles, forged claims, no protected restoration flashes through the client contract, 401/403/non-disclosing 404, current versus obsolete sessions, scoped query predicates and the policy registry for every declared route. Handler tests use real persisted users and normal credential checks.
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9_
