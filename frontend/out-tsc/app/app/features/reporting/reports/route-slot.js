@@ -1,0 +1,1 @@
+export const REPORTS_ROUTES = [{ path: 'dashboard', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'reports', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

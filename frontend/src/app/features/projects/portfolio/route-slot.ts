@@ -1,0 +1,2 @@
+import { Routes } from '@angular/router';
+export const PORTFOLIO_ROUTES: Routes = [{ path: 'projects', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) },{ path: 'projects/new', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) },{ path: 'projects/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

@@ -1,0 +1,1 @@
+export const BOOKINGS_ROUTES = [{ path: 'bookings', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'bookings/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

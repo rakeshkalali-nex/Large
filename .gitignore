@@ -3,3 +3,14 @@
 .nexgile/greenfield/thread.jsonl
 .nexgile/greenfield/checkpoints/
 docs/input/
+node_modules/
+.env
+.env.*
+!.env.example
+var/
+frontend/dist/
+frontend/.angular/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo

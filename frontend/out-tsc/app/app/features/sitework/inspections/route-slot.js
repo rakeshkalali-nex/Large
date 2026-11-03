@@ -1,0 +1,1 @@
+export const INSPECTIONS_ROUTES = [{ path: 'inspections', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'issues', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];

@@ -1,0 +1,1 @@
+export const LEADS_ROUTES = [{ path: 'leads', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }, { path: 'leads/:id', loadComponent: () => import('../../../setup/unavailable').then(m => m.UnavailablePage) }];
