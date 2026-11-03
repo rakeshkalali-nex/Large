@@ -1,0 +1,98 @@
+button, .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-block-size: 44px;
+  max-inline-size: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: pointer;
+}
+button:hover, .button:hover { background: var(--color-primary-hover); }
+button:active, .button:active {
+  background: var(--color-primary-pressed);
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+button:active:focus, .button:active:focus {
+  box-shadow: inset 0 0 0 2px currentColor, 0 0 0 2px #FFFFFF;
+}
+.button--secondary {
+  border-color: var(--color-muted);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.button--secondary:hover { background: var(--color-background); }
+.button--secondary:active { background: var(--color-disabled); }
+.button--destructive { border-color: var(--color-error); background: var(--color-error); }
+.button--destructive:hover { background: #991B1B; }
+.button--destructive:active { background: #7F1D1D; }
+button:disabled, .button[aria-disabled='true'], button[aria-disabled='true'] {
+  border-color: var(--color-border);
+  background: var(--color-disabled);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+  opacity: 1;
+}
+[aria-busy='true'] { cursor: progress; }
+.spinner {
+  display: inline-block;
+  inline-size: 1em;
+  block-size: 1em;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: pending-pulse 150ms ease-in-out infinite alternate;
+}
+@keyframes pending-pulse { from { opacity: 0.5; } to { opacity: 1; } }
+.field { display: grid; gap: var(--space-1); min-inline-size: 0; }
+label, legend, .field-label { font-weight: 500; }
+fieldset { min-inline-size: 0; margin: 0; padding: var(--space-2); border: 1px solid var(--color-border); }
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']), select, textarea {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  // Slate edge supplements the prescribed pale border for non-text contrast.
+  box-shadow: inset 0 0 0 1px var(--color-muted);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+textarea { resize: vertical; min-block-size: 96px; }
+input::placeholder, textarea::placeholder { color: var(--color-muted); opacity: 1; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px #FFFFFF;
+}
+input[type='checkbox'], input[type='radio'], input[type='range'] { accent-color: var(--color-primary); }
+.choice-label { display: flex; align-items: center; gap: var(--space-1); min-block-size: 44px; }
+input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='true'] {
+  border-color: var(--color-error);
+  box-shadow: inset 0 0 0 1px var(--color-error);
+}
+input[aria-invalid='true']:focus, select[aria-invalid='true']:focus, textarea[aria-invalid='true']:focus {
+  box-shadow: inset 0 0 0 1px var(--color-error), 0 0 0 2px #FFFFFF;
+}
+input:disabled, select:disabled, textarea:disabled {
+  background: var(--color-disabled);
+  color: var(--color-disabled-text);
+  opacity: 1;
+  cursor: not-allowed;
+}
+.field-error { color: var(--color-error); }
+.status { display: inline-flex; align-items: center; gap: var(--space-tight); padding: var(--space-tight) var(--space-1); border-radius: var(--radius-control); }
+.status--success { color: var(--color-success); background: var(--color-success-background); }
+.status--error, .error-summary { color: var(--color-error); background: var(--color-error-background); }
+.status--warning { color: var(--color-warning); background: var(--color-warning-background); }
+.status--information { color: var(--color-information); background: var(--color-information-background); }
+.error-summary { padding: var(--space-2); border-inline-start: 4px solid var(--color-error); }
