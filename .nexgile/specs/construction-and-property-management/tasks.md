@@ -29,7 +29,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
 
 ## Required implementation
 
-- [ ] 1. Project setup — Angular, Go, SQLite, contracts and local commands
+- [x] 1. Project setup — Angular, Go, SQLite, contracts and local commands
   - Create the strict Angular standalone workspace, Go service/operator entry points, complete ordered baseline schema, typed API contracts and stable route/module composition described above. Implement configurable SQLite connections, migration checksums, foreign keys, WAL/busy-timeout policy, liveness/readiness, safe JSON middleware, static deep links and one passing frontend and backend test; cover schema constraints with real SQLite tests.
   - Write README commands exactly matching design's Build and run and command table, including cmd.exe and PowerShell usage. Implement root runners, full-test orchestration and package-specific test forwarding; initially discover only existing suites, failing actual failures rather than ignoring missing promised features. Install `@playwright/test`, configure self-starting integration support, and create `e2e/.gitkeep` excluded from unit discovery. Include `.env` in `.gitignore`, safe `.env.example` defaults, actual tool versions and pure-Go driver notes. Bind every development server to `127.0.0.1`; the runner reads `PORT`, allocates a separate Go port and generates the Angular proxy. Bootstrap/seed/backup command slots must report unavailable until their owning task implements them, never pretend success.
   - _Requirements: 26.1, 26.2, 26.3, 26.4, 26.5, 26.7, 26.8_
