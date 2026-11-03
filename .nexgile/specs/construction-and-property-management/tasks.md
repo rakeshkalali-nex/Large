@@ -40,6 +40,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:contracts_
   - _Verify: npm run build_
   - _Area: setup_
+  - _Issue: #1_
 
 - [ ] 2. Shared accessible shell, architectural theme and IBM Plex Sans
   - Build the permission-aware sidebar/header, project context, user menu, breadcrumbs, route focus, safe error handling and shared controls. Implement the design's exact shared-state/event contracts; session and permission stores consume the foundation's typed access interfaces. Use locally licensed IBM Plex Sans 400–700, global token styles, accessible CDK overlays, tabular figures and responsive navigation.
@@ -50,6 +51,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm test --workspace frontend -- shared_
   - _Verify: npm test --workspace frontend -- core_
   - _Area: ui_
+  - _Issue: #2_
 
 - [ ] 3. Transaction integrity and independent approval infrastructure
   - Implement version checks, record metadata, lifecycle/archive helpers, persistent idempotency, eligible review-queue predicates, creator separation, atomic audit writes and rollback-safe service boundaries. Add shared exact-money/cost-source and posting-configuration interfaces with their concrete low-level helpers; domain decisions remain in their owning workflow.
@@ -62,6 +64,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/platform/posting/..._
   - _Verify: npm run test:backend -- ./internal/audit/writer/..._
   - _Area: api_
+  - _Issue: #3_
 
 - [ ] 4. Secure sessions and server-determined project permissions
   - Implement login, identity restoration, logout, CSRF, opaque hashed session tokens, current-account checks and deny-by-default capability/project/field policies. Apply the design's 30-minute idle and 12-hour absolute expiry, identifier/origin rate limits, exact cookie policy and access-revision invalidation, including rechecking permission in write transactions.
@@ -74,6 +77,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/access/csrf/..._
   - _Verify: npm run test:backend -- ./internal/access/ratelimit/..._
   - _Area: api_
+  - _Issue: #4_
 
 - [ ] 5. Password setup, change and Administrator-assisted recovery
   - Implement private local first-Administrator bootstrap, Argon2id hashing, 12-character minimum, 24-hour setup and 30-minute recovery tokens, trusted-channel guidance and replacement-token handling. Complete the operator command and recovery endpoints; enforce setup-only access and atomic token consumption, session revocation and audit on password completion.
@@ -86,6 +90,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/access/bootstrap/..._
   - _Verify: npm run test:backend -- ./cmd/manage_
   - _Area: api_
+  - _Issue: #5_
 
 - [ ] 6. Sign in and authorized entry
   - Deliver screen 01 and root entry resolution: navy architectural desktop panel, warm-light 420px form, compact mobile brand header, visible labels, masked password with show/hide, Enter submission, password-manager/paste support and real Go authentication. Restore identity before routing and select only the authorized return path or exact role landing.
@@ -98,6 +103,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm test --workspace frontend -- guards_
   - _Verify: npm run test:integration -- auth-entry_
   - _Area: ui_
+  - _Issue: #8_
 
 - [ ] 7. Users and access
   - Deliver screen 34: searchable staff table/cards, account editor, explicit role/project checklist, one-time setup/recovery link dialog and reasoned deactivation confirmation. Implement users/roles/assignment endpoints, validation, lifecycle history, no-project feedback and current-session invalidation.
@@ -108,6 +114,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/access/users/..._
   - _Verify: npm test --workspace frontend -- administration/users_
   - _Area: api_
+  - _Issue: #9_
 
 - [ ] 8. Projects, Create project and Project overview workflow
   - Deliver screens 03–05 as one portfolio-to-project workflow: filtered portfolio rows/mobile cards, grouped identity/dates/initial-sites creation, and a project masthead with progress, sites, approved activity and permitted summary links. Implement project/site endpoints, manager assignment, unique codes, date validation, lifecycle and retained archive history.
@@ -118,6 +125,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/projects/portfolio/..._
   - _Verify: npm test --workspace frontend -- projects/portfolio_
   - _Area: api_
+  - _Issue: #13_
 
 - [ ] 9. Project plan and weighted progress
   - Deliver screen 06 with editable milestone/task grid, weight-total indicator and readable desktop timeline; use milestone accordions and task cards on phones. Implement atomic plan revisions, assignments, dates, task progress and cancellation with explicit rebalancing.
@@ -128,6 +136,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/projects/plan/..._
   - _Verify: npm test --workspace frontend -- projects/plan_
   - _Area: api_
+  - _Issue: #16_
 
 - [ ] 10. Daily site logs submission and review workflow
   - Deliver screens 07–08 with chronological log cards/table, date/site filters and eligible review queue leading into a mobile diary editor, worker rows, entered weather, photo strip and review history. Implement draft, submit, independent approval, reasoned return and resubmission.
@@ -138,6 +147,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/sitework/logs/..._
   - _Verify: npm test --workspace frontend -- sitework/logs_
   - _Area: api_
+  - _Issue: #20_
 
 - [ ] 11. Inspection to resolution workflow
   - Deliver screens 09–10: inspection register with checklist/result panel and linked corrective-issue action; prioritized issue register with assignment, due date and evidence drawer. Phone cards retain large pass/fail/not-applicable controls and reachable transitions.
@@ -148,6 +158,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/sitework/inspections/..._
   - _Verify: npm test --workspace frontend -- sitework/inspections_
   - _Area: api_
+  - _Issue: #21_
 
 - [ ] 12. Materials and suppliers
   - Deliver screen 11 with clear Materials/Suppliers subviews, searchable tables/cards, separate create/edit panels and scoped history links. Implement unique material codes, explicit units, nonnegative minimums, supplier contacts and reference-preserving archives.
@@ -158,6 +169,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/procurement/catalog/..._
   - _Verify: npm test --workspace frontend -- procurement/catalog_
   - _Area: api_
+  - _Issue: #10_
 
 - [ ] 13. Purchase order submission, approval and amendment workflow
   - Deliver screens 13–15: order/review/delivery register, exact line-item creation with Save draft/Submit, and order detail with remaining quantities, amendment comparison, receipt links and approval timeline. Use stacked line cards and collapsible history on phones.
@@ -168,6 +180,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/procurement/orders/..._
   - _Verify: npm test --workspace frontend -- procurement/orders_
   - _Area: api_
+  - _Issue: #17_
 
 - [ ] 14. Goods receipts and Stock movements transaction workflow
   - Deliver screens 16–17 as the purchase-to-stock posting workflow: approved-order selection, per-line remaining receipt quantities and history; immutable movement ledger beside Issue/Return/Transfer/Adjustment action forms and independent adjustment queue. Phones use stepwise receipt entry and focused movement cards/forms.
@@ -180,6 +193,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm test --workspace frontend -- procurement/receipts_
   - _Verify: npm test --workspace frontend -- inventory/movements_
   - _Area: api_
+  - _Issue: #23_
 
 - [ ] 15. Site inventory
   - Deliver screen 12 with site/material filters, explicit quantity/unit/minimum columns, low-stock labels and contributing-ledger links; phones show readable balance cards. Implement authorized balance queries and minimum overrides without independently editable balances.
@@ -190,6 +204,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/inventory/balances/..._
   - _Verify: npm test --workspace frontend -- inventory/balances_
   - _Area: api_
+  - _Issue: #26_
 
 - [ ] 16. Contractor commissioning and approved work workflow
   - Deliver screens 18–21 as one contractor-to-approved-work workflow: directory and contact profile, assigned project/work-order links, creation register and scope/milestone detail with evidence and approval timeline. Use contact/work-order cards and stacked milestone editing on phones.
@@ -200,6 +215,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/contractors/..._
   - _Verify: npm test --workspace frontend -- contractors_
   - _Area: api_
+  - _Issue: #18_
 
 - [ ] 17. Project budgets and expense recognition workflow
   - Deliver screens 22–23 with budget/actual/commitment/variance matrix and source drill-down, revision comparison, expense entry/evidence and independent review queue. Phone category and expense cards retain totals and reachable review controls.
@@ -211,6 +227,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/finance/costs/..._
   - _Verify: npm test --workspace frontend -- finance/budgets_
   - _Area: api_
+  - _Issue: #22_
 
 - [ ] 18. Invoices and bills and exact posting
   - Deliver screen 24 with Receivables/Payables tabs, due/status filters, exact line editor, explicit entered tax, evidence/duplicate-review panel, balances and post/reverse actions; phone summaries retain line cards and totals above actions.
@@ -221,6 +238,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/finance/invoices/..._
   - _Verify: npm test --workspace frontend -- finance/invoices_
   - _Area: api_
+  - _Issue: #27_
 
 - [ ] 19. Payments and receipts and allocation
   - Deliver screen 25 with incoming/outgoing register, reference/method/date entry, invoice allocation grid, available-cash summary and distinct reversal/refund panels; mobile uses payment cards and per-invoice rows with a visible remaining total.
@@ -231,6 +249,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/finance/payments/..._
   - _Verify: npm test --workspace frontend -- finance/payments_
   - _Area: api_
+  - _Issue: #30_
 
 - [ ] 20. Property inventory, Property detail and reservations
   - Deliver screens 27–28: searchable image grid/table and filters, creation dialog, large gallery/fact detail, distinct construction/sales labels, price history and reserve panel. Phone image cards, gallery buttons and stacked facts keep reservation controls accessible.
@@ -242,6 +261,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/sales/reservations/..._
   - _Verify: npm test --workspace frontend -- sales/properties_
   - _Area: api_
+  - _Issue: #19_
 
 - [ ] 21. Enquiry, site visit and customer conversion workflow
   - Deliver screens 29–30 with list/pipeline toggle, accessible stage menus, follow-up filters and enquiry entry leading to contact/preferences, chronological activities, visit composer and customer/booking conversion. Phone stage selection and stacked cards replace drag-only interactions.
@@ -252,6 +272,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/sales/leads/..._
   - _Verify: npm test --workspace frontend -- sales/leads_
   - _Area: api_
+  - _Issue: #34_
 
 - [ ] 22. Booking agreement, collection and cancellation workflow
   - Deliver screen 31 and screen 32's agreement/collection/cancellation sections: active/cancelled register, customer/unit agreement header, installment/receipt ledger, approved terms and cancellation/refund timeline; phone cards and accordion histories retain exact balances and role-specific actions. Prewire the independently owned sale/handover panel from task 23 through its foundation interface.
@@ -262,6 +283,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/sales/bookings/..._
   - _Verify: npm test --workspace frontend -- sales/bookings_
   - _Area: api_
+  - _Issue: #33_
 
 - [ ] 23. Sale confirmation and handover
   - Complete screen 32's separately styled sale/handover panel: agreement upload/date, recorded payment requirements, Finance verification evidence, independent Confirm sale and distinct Project Manager checklist/Finance clearance/Sales handover date. On phones use explicit staged actions, never one ambiguous completion button.
@@ -272,6 +294,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/sales/sale/..._
   - _Verify: npm test --workspace frontend -- sales/sale_
   - _Area: api_
+  - _Issue: #35_
 
 - [ ] 24. Documents and durable evidence
   - Deliver screen 33 with scoped file register, entity links, per-file upload queue, safe preview/download/archive; phones use touch upload and full-screen safe preview. Supply the reusable evidence picker and typed parent-policy validation used by other workflows.
@@ -283,6 +306,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm test --workspace frontend -- documents_
   - _Verify: npm test --workspace frontend -- shared/evidence_
   - _Area: api_
+  - _Issue: #6_
 
 - [ ] 25. Company settings and data stewardship
   - Deliver screen 35's company/branding, currency/timezone, reference defaults, project/site overrides, operating-policy, privacy/retention and operator-status sections with validation/history; mobile uses named stacked sections and clear posting blockers. Implement settings, acknowledgments, privacy requests, holds and reviewed retention endpoints, plus the administrator-only operator-status projection.
@@ -293,6 +317,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/settings/..._
   - _Verify: npm test --workspace frontend -- administration/settings_
   - _Area: api_
+  - _Issue: #7_
 
 - [ ] 26. Audit history
   - Deliver screen 36 with actor/action/project/date filters, immutable event rows, safe before/after drawer and authorized record links; phones show event cards and labeled changes. Implement paginated audit reads with Administrator, Finance trail and Project Manager approval-trail projections.
@@ -303,6 +328,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/audit/history/..._
   - _Verify: npm test --workspace frontend -- administration/audit_
   - _Area: api_
+  - _Issue: #11_
 
 - [ ] 27. Management dashboard, Reports and project-cost reconciliation
   - Deliver screens 02 and 26 as the summary-to-source workflow: scoped metric cards and overdue/low-stock panels, report selector/filters, generation time, formula disclosure, result rows, CSV/save actions and reconciliation discrepancy/signoff panels. Phones use stacked summaries and filter drawers, with only labeled detail regions scrolling horizontally.
@@ -313,6 +339,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./internal/reporting/..._
   - _Verify: npm test --workspace frontend -- reporting_
   - _Area: api_
+  - _Issue: #38_
 
 - [ ] 28. Persistent local operation, backups and disposable restoration
   - Implement hourly consistent SQLite/attachment snapshots, WAL-aware manifests, content pins/checksums, separate protected-storage validation, 48-hour hourly/30-day daily retention, incomplete-backup rejection and sanitized status. Finish backup/restore-check operator commands and documentation for Sunday 02:00–04:00 company-time maintenance.
@@ -324,6 +351,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm run test:backend -- ./cmd/manage_
   - _Verify: npm run test:integration -- restore_
   - _Area: api_
+  - _Issue: #12_
 
 - [ ] 29. Capacity and response-target campaign
   - Implement isolated year-1/year-3 valid-history generators for every quantity in requirement 27.1, including attachment bytes, sessions, tokens and buyer contacts. Run morning-planning, end-of-day and month-end load mixes with 15/40 simultaneous users, recording actual reference hardware, throughput, lock waits, failed requests and latency distributions.
@@ -333,6 +361,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Files: tests/capacity/**, docs/evidence/capacity/**, docs/operations/capacity.md_
   - _Verify: npm run test:capacity_
   - _Area: api_
+  - _Issue: #41_
 
 - [ ] 30. Connected acceptance, explicit development fixtures and pilot evidence
   - Finish the explicit idempotent development seed command with at least three projects, approximately twenty units and reconciling related histories; keep credentials runtime-generated in test fixtures and human bootstrap separate. Implement all real-backend connected journeys, seven-role login/denial and recovery cases, UI refresh/restart persistence, concurrency/rollback checks and screenshot/font/keyboard evidence. Compose the 36-screen route/role/API/action/state/evidence matrix, including every required action and the distinct screen 32 sale/handover panel.
@@ -345,6 +374,7 @@ The six source phases remain delivery milestones: foundation/access/projects; si
   - _Verify: npm test_
   - _Verify: npm run build_
   - _Area: setup_
+  - _Issue: #44_
 
 ## Optional generated-input property checks
 
@@ -358,6 +388,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/access/propertysessions/**_
   - _Verify: npm run test:backend -- ./internal/access/propertysessions/... -v_
   - _Mode: testgen_
+  - _Issue: #14_
 
 - [ ]* 32. Property tests for password tokens and independent approval
   - Generate token consumption races, setup restrictions, final-Administrator changes and review histories; assert single-use completion, retained Administrator access and atomic independent decisions.
@@ -367,6 +398,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/access/propertyrecovery/**_
   - _Verify: npm run test:backend -- ./internal/access/propertyrecovery/... -v_
   - _Mode: testgen_
+  - _Issue: #24_
 
 - [ ]* 33. Property tests for duplicate effects and weighted progress
   - Generate stale edits, same/different-payload retries and retained record histories; independently calculate weighted progress and prove approval does not invent milestone completion.
@@ -376,6 +408,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/projects/propertyprogress/**_
   - _Verify: npm run test:backend -- ./internal/projects/propertyprogress/... -v_
   - _Mode: testgen_
+  - _Issue: #28_
 
 - [ ]* 34. Property tests for inspection corrective history
   - Generate inspection results and issue transitions; unlinked failures cannot complete and resolution/reopening retains required evidence and reasons.
@@ -385,6 +418,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/sitework/propertyinspections/**_
   - _Verify: npm run test:backend -- ./internal/sitework/propertyinspections/... -v_
   - _Mode: testgen_
+  - _Issue: #25_
 
 - [ ]* 35. Property tests for receipts and approved amendments
   - Generate quantity/unit/order revision and reversal histories, including concurrent requests; net receipt never exceeds approved quantities and receipt/order/stock effects roll back together.
@@ -394,6 +428,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/procurement/propertyreceipts/**_
   - _Verify: npm run test:backend -- ./internal/procurement/propertyreceipts/... -v_
   - _Mode: testgen_
+  - _Issue: #29_
 
 - [ ]* 36. Property tests for stock conservation
   - Compare generated issue/return/transfer/adjustment sequences to an independent ledger model; assert nonnegative balances, compatible units, conserved transfers and independent adjustment approval.
@@ -403,6 +438,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/inventory/propertystock/**_
   - _Verify: npm run test:backend -- ./internal/inventory/propertystock/... -v_
   - _Mode: testgen_
+  - _Issue: #31_
 
 - [ ]* 37. Property tests for single-counted approved costs
   - Generate expense/bill/commitment graphs and compare actuals, remaining commitments and variance to an independent source-identity oracle, excluding cash as a second cost.
@@ -412,6 +448,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/finance/propertycosts/**_
   - _Verify: npm run test:backend -- ./internal/finance/propertycosts/... -v_
   - _Mode: testgen_
+  - _Issue: #42_
 
 - [ ]* 38. Property tests for exact money and posting prerequisites
   - Generate bounded quantities/prices/tax and invalid evidence/overflow cases; compare half-up totals to a rational oracle and assert posting never bypasses confirmed settings or duplicate review.
@@ -421,6 +458,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/finance/propertymoney/**_
   - _Verify: npm run test:backend -- ./internal/finance/propertymoney/... -v_
   - _Mode: testgen_
+  - _Issue: #32_
 
 - [ ]* 39. Property tests for allocation and reversal balances
   - Generate posted invoice/payment/allocation histories with incompatible batches and reversals; independently model valid entries and assert invoice, cash and booking balances reconcile without partial posting.
@@ -430,6 +468,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/finance/propertyallocations/**_
   - _Verify: npm run test:backend -- ./internal/finance/propertyallocations/... -v_
   - _Mode: testgen_
+  - _Issue: #36_
 
 - [ ]* 40. Property tests for exclusive unit ownership over time
   - Generate interleaved reservation, activation, cancellation, manual state and expiry/restart operations on separate connections; assert one claim, correct losing conflict and no release of converted bookings.
@@ -439,6 +478,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/sales/propertyclaims/**_
   - _Verify: npm run test:backend -- ./internal/sales/propertyclaims/... -v_
   - _Mode: testgen_
+  - _Issue: #37_
 
 - [ ]* 41. Property tests for sales history and recorded refund terms
   - Generate price/contact/lead conversion histories plus cancellation bands, collections, reversals and refunds; preserve original agreements/relationships and compare refund caps to an independent bounded oracle.
@@ -448,6 +488,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/sales/propertyhistory/**_
   - _Verify: npm run test:backend -- ./internal/sales/propertyhistory/... -v_
   - _Mode: testgen_
+  - _Issue: #39_
 
 - [ ]* 42. Property tests for independent sale and handover evidence
   - Generate actors, active/cancelled bookings and current/stale evidence combinations; sold status and handover are reachable only with every required independent prerequisite.
@@ -457,6 +498,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/sales/propertysale/**_
   - _Verify: npm run test:backend -- ./internal/sales/propertysale/... -v_
   - _Mode: testgen_
+  - _Issue: #40_
 
 - [ ]* 43. Property tests for evidence and retention inheritance
   - Generate file validation boundaries, interrupted commits, parent classifications and holds; invalid/incomplete content remains inaccessible and retention/anonymization preserves required evidence and audit access.
@@ -466,6 +508,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/documents/propertyretention/**_
   - _Verify: npm run test:backend -- ./internal/documents/propertyretention/... -v_
   - _Mode: testgen_
+  - _Issue: #15_
 
 - [ ]* 44. Property tests for report and audit truthfulness
   - Generate committed source rows, due dates, hostile CSV text and safe audit changes; prove detail-total equality, date-only overdue effects, spreadsheet escaping and secret-free authorized audit projections.
@@ -475,6 +518,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Files: backend/internal/reporting/propertyreports/**_
   - _Verify: npm run test:backend -- ./internal/reporting/propertyreports/... -v_
   - _Mode: testgen_
+  - _Issue: #43_
 
 - [ ]* 45. Property tests for snapshot restoration and API boundaries
   - Generate committed database/file snapshots with concurrent later writes and incomplete manifests, plus malformed API inputs; restored references/hashes match the snapshot and invalid requests return safe contract errors without partial effects.
@@ -485,6 +529,7 @@ These leaves supplement required example/transaction/browser tests; no required 
   - _Verify: npm run test:backend -- ./internal/platform/propertyrestore/... -v_
   - _Verify: npm run test:backend -- ./internal/httpapi/propertyboundaries/... -v_
   - _Mode: testgen_
+  - _Issue: #45_
 
 ## Non-generated property evidence
 
